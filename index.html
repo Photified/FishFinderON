@@ -90,15 +90,48 @@
     .lake-card {
       background-color: var(--card-bg); border-radius: 12px; padding: 18px;
       margin-bottom: 15px; display: flex; justify-content: space-between;
-      align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
-    .lake-info { flex: 1; padding-right: 15px; }
-    .lake-info h3 { margin: 0 0 8px; font-size: 1.2rem; }
-    .lake-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+    .lake-info { flex: 1; padding-right: 10px; }
+    .lake-info h3 { margin: 0 0 4px; font-size: 1.2rem; }
+    
+    /* New Town Subheader Styling */
+    .lake-town {
+      font-size: 0.85rem;
+      color: var(--accent);
+      margin: 0 0 10px 0;
+      font-weight: 600;
+    }
+    
+    .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
+    
+    /* Right Side Layout for Badge & Button */
+    .lake-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
     .distance-badge {
       background-color: rgba(14, 165, 233, 0.2); color: var(--accent);
-      padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; white-space: nowrap;
+      padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;
     }
+    
+    /* Google Maps Button */
+    .maps-btn {
+      background-color: #2563eb;
+      color: white;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    }
+    .maps-btn svg { width: 14px; height: 14px; fill: white; }
 
     /* Modal Styling */
     .modal-overlay {
@@ -119,39 +152,15 @@
       width: 100%; padding: 14px; border: none; border-radius: 10px;
       font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px;
     }
-    .btn-primary { background: var(--accent); color: #fff; display: none; } /* Hidden until PWA prompt ready */
+    .btn-primary { background: var(--accent); color: #fff; display: none; }
     .btn-secondary { background: #333; color: #fff; }
 
-    /* Data Sources Styling */
-    .data-sources {
-      margin-top: 20px;
-      padding-top: 15px;
-      border-top: 1px solid #333;
-    }
-    .data-sources h4 {
-      margin: 0 0 5px;
-      color: var(--text-main);
-      font-size: 0.95rem;
-    }
-    .data-sources p {
-      margin: 0 0 10px;
-      font-size: 0.8rem;
-    }
-    .data-sources ul {
-      margin: 0;
-      padding-left: 20px;
-      font-size: 0.85rem;
-    }
-    .data-sources li {
-      margin-bottom: 6px;
-    }
-    .data-sources a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-    .data-sources a:hover {
-      text-decoration: underline;
-    }
+    .data-sources { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
+    .data-sources h4 { margin: 0 0 5px; color: var(--text-main); font-size: 0.95rem; }
+    .data-sources p { margin: 0 0 10px; font-size: 0.8rem; }
+    .data-sources ul { margin: 0; padding-left: 20px; font-size: 0.85rem; }
+    .data-sources li { margin-bottom: 6px; }
+    .data-sources a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -191,7 +200,6 @@
   </div>
 
   <script>
-    // --- PWA & Service Worker Logic ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -212,30 +220,17 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') {
-          console.log('User accepted the install prompt');
-        }
+        if (outcome === 'accepted') console.log('User accepted install');
         deferredPrompt = null;
         installBtn.style.display = 'none';
       }
     });
 
-    // --- Modal Logic ---
     const settingsModal = document.getElementById('settingsModal');
-    document.getElementById('openSettingsBtn').addEventListener('click', () => {
-      settingsModal.classList.add('open');
-    });
-    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
-      settingsModal.classList.remove('open');
-    });
-    // Close modal if user taps outside of it
-    settingsModal.addEventListener('click', (e) => {
-      if (e.target === settingsModal) {
-        settingsModal.classList.remove('open');
-      }
-    });
+    document.getElementById('openSettingsBtn').addEventListener('click', () => settingsModal.classList.add('open'));
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
+    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-    // --- Core App Logic ---
     const fishSpecies = [
       { id: 'smallmouthbass', name: 'Smallmouth Bass' },
       { id: 'largemouthbass', name: 'Largemouth Bass' },
@@ -271,7 +266,7 @@
         lakesData = await response.json();
         buildSlider();
       } catch (error) {
-        resultsContainer.innerHTML = '<p class="status-msg">Error: Missing lakesData.json file. Please generate it first.</p>';
+        resultsContainer.innerHTML = '<p class="status-msg">Error: Missing lakesData.json file.</p>';
       }
     }
 
@@ -280,10 +275,7 @@
         const btn = document.createElement('div');
         btn.className = 'fish-btn';
         btn.dataset.id = fish.id;
-        btn.innerHTML = `
-          <img src="images/${fish.id}.png" alt="${fish.name}">
-          <span>${fish.name}</span>
-        `;
+        btn.innerHTML = `<img src="images/${fish.id}.png" alt="${fish.name}"><span>${fish.name}</span>`;
         btn.addEventListener('click', () => handleFishSelection(fish.id, btn));
         sliderContainer.appendChild(btn);
       });
@@ -300,12 +292,8 @@
       }
 
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          findClosestLakes(speciesId, position.coords.latitude, position.coords.longitude);
-        },
-        (error) => {
-          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS to find lakes.</p>';
-        }
+        (position) => findClosestLakes(speciesId, position.coords.latitude, position.coords.longitude),
+        (error) => { resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>'; }
       );
     }
 
@@ -313,14 +301,11 @@
       let matchingLakes = lakesData.filter(lake => lake.species.includes(speciesId));
 
       if (matchingLakes.length === 0) {
-        resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species in the database.</p>`;
+        resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species.</p>`;
         return;
       }
 
-      matchingLakes.forEach(lake => {
-        lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
-      });
-
+      matchingLakes.forEach(lake => lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon));
       matchingLakes.sort((a, b) => a.distance - b.distance);
       const topLakes = matchingLakes.slice(0, 10);
 
@@ -333,13 +318,26 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
+        // Map missing towns to 'Ontario' to prevent "undefined" showing up
+        const townName = lake.town ? lake.town : 'Ontario';
+
         resultsContainer.innerHTML += `
           <div class="lake-card">
             <div class="lake-info">
               <h3>${lake.name}</h3>
-              <p>${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
+              <div class="lake-town">📍 ${townName}</div>
+              <p class="species-list">${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
             </div>
-            <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
+            <div class="lake-actions">
+              <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
+              <a href="${mapsUrl}" target="_blank" class="maps-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                  <path d="M15.71 236.16L135.31 10.63C141.22 1.34 150.39-1.92 160 .92s18.78 10.42 24.69 19.71l119.6 225.53c15.65 29.5 21.05 63.81 15.65 97.43-5.41 33.62-21.72 64.71-47.38 88.66-25.65 23.95-58.4 39.11-92.48 43.15-34.08 4.03-68.49-4.22-97.23-22.68L15.71 236.16z"/>
+                </svg>
+                Drive
+              </a>
+            </div>
           </div>
         `;
       });
