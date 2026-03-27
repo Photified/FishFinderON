@@ -109,40 +109,48 @@
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    /* --- NEW ACCORDION CSS --- */
+    /* --- NEW AESTHETIC ACCORDION CSS --- */
     .stocking-toggle {
-      background: none;
-      border: 1px solid #10b981;
-      color: #10b981;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 0.85rem;
+      background-color: var(--accent);
+      border: none;
+      color: white;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1.2rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       margin-top: 12px;
-      font-weight: 600;
-      transition: background-color 0.2s;
+      padding: 0;
+      box-shadow: 0 3px 8px rgba(14, 165, 233, 0.4);
+      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
+      line-height: 1;
     }
     .stocking-toggle:active {
-      background-color: rgba(16, 185, 129, 0.2);
+      transform: scale(0.9);
+      background-color: #0284c7;
     }
     .stocking-content {
       max-height: 0;
       overflow: hidden;
-      transition: max-height 0.3s ease-out, margin-top 0.3s ease-out;
+      opacity: 0;
+      transition: max-height 0.3s ease-out, margin-top 0.3s ease-out, opacity 0.3s ease-out;
     }
     .stocking-content.open {
-      max-height: 150px; /* Adjust if your text is very long */
-      margin-top: 10px;
+      max-height: 200px;
+      margin-top: 12px;
+      opacity: 1;
     }
     .stocking-info {
-      background-color: rgba(16, 185, 129, 0.15);
+      background-color: rgba(16, 185, 129, 0.1);
+      border-left: 3px solid #10b981;
       color: #10b981;
-      padding: 10px;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      line-height: 1.4;
+      padding: 10px 14px;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
       margin: 0;
     }
     /* ------------------------- */
@@ -269,21 +277,16 @@
     document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-    // --- ACCORDION TOGGLE EVENT LISTENER ---
-    // We attach this to the results container so it works for all dynamically created buttons
+    // --- UPDATED TOGGLE EVENT LOGIC ---
     document.getElementById('results').addEventListener('click', function(e) {
-      if (e.target && e.target.classList.contains('stocking-toggle')) {
-        const content = e.target.nextElementSibling;
-        if (content.classList.contains('open')) {
-          content.classList.remove('open');
-          e.target.innerHTML = '🐟 View Stocking Info';
-        } else {
-          content.classList.add('open');
-          e.target.innerHTML = '🐟 Hide Stocking Info';
-        }
+      // Use .closest() to ensure the click registers even if they tap precisely on the emoji text
+      const toggleBtn = e.target.closest('.stocking-toggle');
+      if (toggleBtn) {
+        const content = toggleBtn.nextElementSibling;
+        content.classList.toggle('open');
       }
     });
-    // ---------------------------------------
+    // ----------------------------------
 
     const fishSpecies = [
       { id: 'smallmouthbass', name: 'Smallmouth Bass' },
@@ -372,22 +375,22 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${lake.lat},${lake.lon}`;
+        const mapsUrl = `http://googleusercontent.com/maps.google.com/3{lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
         const stockedClass = lake.isStocked ? ' stocked' : '';
         
-        // --- NEW ACCORDION HTML ---
+        // --- UPDATED AESTHETIC ACCORDION HTML ---
         let stockingHTML = '';
         if (lake.isStocked && lake.stockingInfo) {
           stockingHTML = `
-            <button class="stocking-toggle">🐟 View Stocking Info</button>
+            <button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>
             <div class="stocking-content">
-              <div class="stocking-info"><strong>Info:</strong> ${lake.stockingInfo}</div>
+              <div class="stocking-info"><strong>Stocking Info:</strong><br>${lake.stockingInfo}</div>
             </div>
           `;
         }
-        // --------------------------
+        // ----------------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
