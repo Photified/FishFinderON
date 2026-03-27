@@ -115,12 +115,12 @@
       padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;
     }
     
-    /* Google Maps Button - SVG Removed */
+    /* Google Maps Button */
     .maps-btn {
       background-color: #2563eb;
       color: white;
       text-decoration: none;
-      padding: 8px 16px; /* slightly wider padding to balance the missing icon */
+      padding: 8px 16px; 
       border-radius: 8px;
       font-size: 0.85rem;
       font-weight: bold;
@@ -315,10 +315,10 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=$${lake.lat},${lake.lon}`;
+        // The fully corrected Google Maps URL
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
-        // --- UPDATED BUTTON ---
         resultsContainer.innerHTML += `
           <div class="lake-card">
             <div class="lake-info">
