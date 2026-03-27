@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Fish Finder Ontario</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#121212">
+  <style>
+    :root {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --accent: #0ea5e9;
+      --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
+    }
+    body {
+      margin: 0; padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+    }
+    header { padding: 20px; text-align: center; background-color: var(--card-bg); border-bottom: 1px solid #333; }
+    h1 { margin: 0; font-size: 1.5rem; color: var(--accent); }
+    p.subtitle { margin: 5px 0 0; font-size: 0.9rem; color: var(--text-muted); }
+    
+    .slider-container {
+      display: flex; overflow-x: auto; padding: 20px 15px; gap: 15px;
+      scroll-snap-type: x mandatory; scrollbar-width: none;
+    }
+    .slider-container::-webkit-scrollbar { display: none; }
+    
+    .fish-btn {
+      flex: 0 0 auto; scroll-snap-align: center;
+      background-color: var(--card-bg); border: 2px solid transparent;
+      border-radius: 12px; padding: 10px; width: 100px;
+      display: flex; flex-direction: column; align-items: center;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+    .fish-btn img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; }
+    .fish-btn span { font-size: 0.8rem; text-align: center; font-weight: 600; }
+    .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.1); transform: scale(1.05); }
+    
+    #results { padding: 0 20px 30px; }
+    .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; }
+    
+    .lake-card {
+      background-color: var(--card-bg); border-radius: 12px; padding: 15px;
+      margin-bottom: 15px; display: flex; justify-content: space-between;
+      align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    }
+    .lake-info h3 { margin: 0 0 5px; font-size: 1.2rem; }
+    .lake-info p { margin: 0; font-size: 0.85rem; color: var(--text-muted); }
+    .distance-badge {
+      background-color: rgba(14, 165, 233, 0.2); color: var(--accent);
+      padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; white-space: nowrap;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Fish Finder ON</h1>
+    <p class="subtitle" id="dataStatus">Loading lake database...</p>
+  </header>
+
+  <div class="slider-container" id="fishSlider"></div>
+  <div id="results">
+    <p class="status-msg">Tap a fish above to find nearby lakes.</p>
+  </div>
+
+  <script>
+    // Register Service Worker for PWA Offline Capabilities
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .then(reg => console.log('Service Worker registered!', reg.scope))
+          .catch(err => console.error('Service Worker failed.', err));
+      });
+    }
+
+    const fishSpecies = [
+      { id: 'atlanticsalmon', name: 'Atlantic Salmon' }, { id: 'bluegill', name: 'Bluegill' },
+      { id: 'brooktrout', name: 'Brook Trout' }, { id: 'browntrout', name: 'Brown Trout' },
+      { id: 'carp', name: 'Carp' }, { id: 'catfish', name: 'Catfish' },
+      { id: 'chinooksalmon', name: 'Chinook Salmon' }, { id: 'cohosalmon', name: 'Coho Salmon' },
+      { id: 'crappie', name: 'Crappie' }, { id: 'freshwaterdrum', name: 'Freshwater Drum' },
+      { id: 'laketrout', name: 'Lake Trout' }, { id: 'lakewhitefish', name: 'Lake Whitefish' },
+      { id: 'largemouthbass', name: 'Largemouth Bass' }, { id: 'muskie', name: 'Muskie' },
+      { id: 'perch', name: 'Perch' }, { id: 'pike', name: 'Pike' },
+      { id: 'rainbowtrout', name: 'Rainbow Trout' }, { id: 'smallmouthbass', name: 'Smallmouth Bass' },
+      { id: 'splake', name: 'Splake' }, { id: 'sturgeon', name: 'Sturgeon' },
+      { id: 'walleye', name: 'Walleye' }
+    ];
+
+    let lakesData = [];
+    const sliderContainer = document.getElementById('fishSlider');
+    const resultsContainer = document.getElementById('results');
+    const statusText = document.getElementById('dataStatus');
+
+    // Load the JSON file
+    async function loadLakeData() {
+      try {
+        const response = await fetch('lakesData.json');
+        if (!response.ok) throw new Error("JSON not found");
+        lakesData = await response.json();
+        statusText.innerText = `Database loaded: ${lakesData.length} lakes`;
+        buildSlider();
+      } catch (error) {
+        statusText.innerText = 'Error: Missing lakesData.json file';
+        resultsContainer.innerHTML = '<p class="status-msg">Please generate lakesData.json first.</p>';
+      }
+    }
+
+    function buildSlider() {
+      fishSpecies.forEach(fish => {
+        const btn = document.createElement('div');
+        btn.className = 'fish-btn';
+        btn.dataset.id = fish.id;
+        btn.innerHTML = `
+          <img src="images/${fish.id}.png" alt="${fish.name}">
+          <span>${fish.name}</span>
+        `;
+        btn.addEventListener('click', () => handleFishSelection(fish.id, btn));
+        sliderContainer.appendChild(btn);
+      });
+    }
+
+    function handleFishSelection(speciesId, btnElement) {
+      document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      resultsContainer.innerHTML = '<p class="status-msg">Finding your location...</p>';
+
+      if (!navigator.geolocation) {
+        resultsContainer.innerHTML = '<p class="status-msg">Geolocation not supported.</p>';
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          findClosestLakes(speciesId, position.coords.latitude, position.coords.longitude);
+        },
+        (error) => {
+          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>';
+        }
+      );
+    }
+
+    function findClosestLakes(speciesId, userLat, userLon) {
+      // Filter lakes containing the selected species ID
+      let matchingLakes = lakesData.filter(lake => lake.species.includes(speciesId));
+
+      if (matchingLakes.length === 0) {
+        resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species in the database.</p>`;
+        return;
+      }
+
+      // Calculate distances
+      matchingLakes.forEach(lake => {
+        lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
+      });
+
+      // Sort closest first and take top 10
+      matchingLakes.sort((a, b) => a.distance - b.distance);
+      const topLakes = matchingLakes.slice(0, 10);
+
+      resultsContainer.innerHTML = '';
+      topLakes.forEach(lake => {
+        // Find other species in this lake and map them to readable names
+        let otherSpeciesIds = lake.species.filter(s => s !== speciesId);
+        let readableOtherSpecies = otherSpeciesIds.map(id => {
+          let found = fishSpecies.find(f => f.id === id);
+          return found ? found.name : id;
+        }).join(', ');
+
+        resultsContainer.innerHTML += `
+          <div class="lake-card">
+            <div class="lake-info">
+              <h3>${lake.name}</h3>
+              <p>Also has: ${readableOtherSpecies || 'Just this species'}</p>
+            </div>
+            <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
+          </div>
+        `;
+      });
+    }
+
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+      const R = 6371; // Earth radius in km
+      const dLat = (lat2 - lat1) * (Math.PI / 180);
+      const dLon = (lon2 - lon1) * (Math.PI / 180);
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+    }
+
+    loadLakeData();
+  </script>
+</body>
+</html>

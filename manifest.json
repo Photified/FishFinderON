@@ -1,0 +1,21 @@
+{
+  "name": "Fish Finder Ontario",
+  "short_name": "FishFinderON",
+  "description": "Find nearby lakes based on fish species in Ontario.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#0ea5e9",
+  "icons": [
+    {
+      "src": "images/walleye.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "images/walleye.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
