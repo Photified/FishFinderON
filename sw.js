@@ -1,17 +1,12 @@
-// Bumped to v2 to force the browser to download the new lakesData.json
-const CACHE_NAME = 'fish-finder-v2'; 
+const CACHE_NAME = 'fish-finder-v3';
 const ASSETS_TO_CACHE = [
   './index.html',
   './manifest.json',
-  './lakesData.json',
-  './images/walleye.png',
-  './images/largemouthbass.png',
-  './images/pike.png'
+  './images/icon.png'
 ];
 
-// Install event: Cache the core files
+// Install event: Cache the core files and force the new SW to take over immediately
 self.addEventListener('install', (event) => {
-  // Skip the 'waiting' lifecycle phase to immediately activate the new service worker
   self.skipWaiting(); 
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -20,7 +15,7 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Activate event: Clean up old caches (like v1)
+// Activate event: Clean up old caches and claim control of the open tabs
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -32,15 +27,39 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Takes control of the page immediately
   );
 });
 
-// Fetch event: Serve from cache if offline
+// Fetch event: Smart routing
 self.addEventListener('fetch', (event) => {
+  
+  // STRATEGY 1: Network-First for the Lake Database
+  if (event.request.url.includes('lakesData.json')) {
+    event.respondWith(
+      fetch(event.request)
+        .then((networkResponse) => {
+          // We got a good response from the internet! Save a copy to the cache.
+          const responseClone = networkResponse.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, responseClone);
+          });
+          return networkResponse;
+        })
+        .catch(() => {
+          // We are offline! Serve the database from the cache instead.
+          console.log('Offline: Serving lakesData.json from cache');
+          return caches.match(event.request);
+        })
+    );
+    return; // Stop here so it doesn't run the other strategy
+  }
+
+  // STRATEGY 2: Cache-First for images, HTML, and everything else
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       return cachedResponse || fetch(event.request).then((networkResponse) => {
+        // Dynamically cache new images as the user scrolls
         if (event.request.url.includes('/images/')) {
           const responseClone = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
