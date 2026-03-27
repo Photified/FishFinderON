@@ -95,7 +95,6 @@
     .lake-info { flex: 1; padding-right: 10px; }
     .lake-info h3 { margin: 0 0 4px; font-size: 1.2rem; }
     
-    /* New Town Subheader Styling */
     .lake-town {
       font-size: 0.85rem;
       color: var(--accent);
@@ -105,7 +104,6 @@
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    /* Right Side Layout for Badge & Button */
     .lake-actions {
       display: flex;
       flex-direction: column;
@@ -117,21 +115,20 @@
       padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;
     }
     
-    /* Google Maps Button */
+    /* Google Maps Button - SVG Removed */
     .maps-btn {
       background-color: #2563eb;
       color: white;
       text-decoration: none;
-      padding: 8px 12px;
+      padding: 8px 16px; /* slightly wider padding to balance the missing icon */
       border-radius: 8px;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: bold;
       display: flex;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
-    .maps-btn svg { width: 14px; height: 14px; fill: white; }
 
     /* Modal Styling */
     .modal-overlay {
@@ -318,10 +315,10 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
-        // Map missing towns to 'Ontario' to prevent "undefined" showing up
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=$${lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
+        // --- UPDATED BUTTON ---
         resultsContainer.innerHTML += `
           <div class="lake-card">
             <div class="lake-info">
@@ -331,12 +328,7 @@
             </div>
             <div class="lake-actions">
               <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
-              <a href="${mapsUrl}" target="_blank" class="maps-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                  <path d="M15.71 236.16L135.31 10.63C141.22 1.34 150.39-1.92 160 .92s18.78 10.42 24.69 19.71l119.6 225.53c15.65 29.5 21.05 63.81 15.65 97.43-5.41 33.62-21.72 64.71-47.38 88.66-25.65 23.95-58.4 39.11-92.48 43.15-34.08 4.03-68.49-4.22-97.23-22.68L15.71 236.16z"/>
-                </svg>
-                Drive
-              </a>
+              <a href="${mapsUrl}" target="_blank" class="maps-btn">Drive</a>
             </div>
           </div>
         `;
