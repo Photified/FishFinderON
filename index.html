@@ -21,31 +21,49 @@
       color: var(--text-main);
     }
     
-    /* Updated Header Styling */
+    /* Flexbox Header */
     header { 
-      padding: 30px 20px 20px; 
-      text-align: center; 
-      /* Gradient sampled from the icon */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px; 
       background: linear-gradient(135deg, #006eb3 0%, #003e6d 100%); 
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     .app-logo {
-      width: 72px;
-      height: 72px;
-      border-radius: 18px;
-      margin-bottom: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     h1 { 
       margin: 0; 
-      font-size: 1.8rem; 
+      font-size: 1.4rem; 
       color: #ffffff; 
       font-weight: 700;
+      flex: 1;
+      text-align: center;
     }
-    p.subtitle { 
-      margin: 5px 0 0; 
-      font-size: 0.9rem; 
-      color: #e2e8f0; 
+    .settings-btn {
+      background: none;
+      border: none;
+      padding: 5px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .settings-btn svg {
+      width: 28px;
+      height: 28px;
+      fill: #ffffff;
+      transition: transform 0.2s ease;
+    }
+    .settings-btn:active svg {
+      transform: rotate(45deg);
     }
     
     .slider-container {
@@ -67,7 +85,7 @@
     .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.15); transform: scale(1.05); }
     
     #results { padding: 0 20px 30px; }
-    .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; }
+    .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
     
     .lake-card {
       background-color: var(--card-bg); border-radius: 12px; padding: 18px;
@@ -81,14 +99,71 @@
       background-color: rgba(14, 165, 233, 0.2); color: var(--accent);
       padding: 8px 12px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; white-space: nowrap;
     }
+
+    /* Modal Styling */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); 
+      z-index: 100; justify-content: center; align-items: center; padding: 20px;
+      backdrop-filter: blur(4px);
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-content {
+      background: var(--card-bg); width: 100%; max-width: 350px; 
+      border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+    .modal-content h2 { margin: 0 0 15px; color: var(--accent); font-size: 1.4rem; }
+    .modal-content p { color: var(--text-main); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
+    .modal-content .sub-text { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
+    
+    .btn {
+      width: 100%; padding: 14px; border: none; border-radius: 10px;
+      font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px;
+    }
+    .btn-primary { background: var(--accent); color: #fff; display: none; } /* Hidden until PWA prompt ready */
+    .btn-secondary { background: #333; color: #fff; }
+
+    /* Data Sources Styling */
+    .data-sources {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #333;
+    }
+    .data-sources h4 {
+      margin: 0 0 5px;
+      color: var(--text-main);
+      font-size: 0.95rem;
+    }
+    .data-sources p {
+      margin: 0 0 10px;
+      font-size: 0.8rem;
+    }
+    .data-sources ul {
+      margin: 0;
+      padding-left: 20px;
+      font-size: 0.85rem;
+    }
+    .data-sources li {
+      margin-bottom: 6px;
+    }
+    .data-sources a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .data-sources a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="images/icon.png" alt="Fish Finder Ontario Logo" class="app-logo">
+    <img src="images/icon.png" alt="App Logo" class="app-logo">
     <h1>Fish Finder ON</h1>
-    <p class="subtitle" id="dataStatus">Loading lake database...</p>
+    <button class="settings-btn" id="openSettingsBtn" aria-label="Settings">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
+      </svg>
+    </button>
   </header>
 
   <div class="slider-container" id="fishSlider"></div>
@@ -96,7 +171,27 @@
     <p class="status-msg">Tap a fish above to find nearby lakes.</p>
   </div>
 
+  <div class="modal-overlay" id="settingsModal">
+    <div class="modal-content">
+      <h2>Settings & Info</h2>
+      <p>Install Fish Finder Ontario to your device to use it offline while you're out on the water!</p>
+      <p class="sub-text"><strong>Android/Chrome:</strong> Tap the Download App button below.<br><strong>iOS/Safari:</strong> Tap the Share icon at the bottom of your screen, then select "Add to Home Screen".</p>
+      <button class="btn btn-primary" id="installBtn">Download App</button>
+      <button class="btn btn-secondary" id="closeSettingsBtn">Close</button>
+      
+      <div class="data-sources">
+        <h4>Data Sources</h4>
+        <p class="sub-text">Lake and species data compiled from Ontario GeoHub:</p>
+        <ul class="sub-text">
+          <li><a href="https://geohub.lio.gov.on.ca/datasets/lio::aquatic-resource-area-polygon-segment-/about" target="_blank">Aquatic Resource Area Polygon Segment</a></li>
+          <li><a href="https://geohub.lio.gov.on.ca/datasets/mnrf::fish-stocking-data-for-recreational-purposes/explore?location=46.970000%2C-84.650000%2C5" target="_blank">Fish Stocking Data for Recreational Purposes</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
   <script>
+    // --- PWA & Service Worker Logic ---
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('./sw.js')
@@ -104,35 +199,79 @@
       });
     }
 
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+    });
+
+    installBtn.addEventListener('click', async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          console.log('User accepted the install prompt');
+        }
+        deferredPrompt = null;
+        installBtn.style.display = 'none';
+      }
+    });
+
+    // --- Modal Logic ---
+    const settingsModal = document.getElementById('settingsModal');
+    document.getElementById('openSettingsBtn').addEventListener('click', () => {
+      settingsModal.classList.add('open');
+    });
+    document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+      settingsModal.classList.remove('open');
+    });
+    // Close modal if user taps outside of it
+    settingsModal.addEventListener('click', (e) => {
+      if (e.target === settingsModal) {
+        settingsModal.classList.remove('open');
+      }
+    });
+
+    // --- Core App Logic ---
     const fishSpecies = [
-      { id: 'atlanticsalmon', name: 'Atlantic Salmon' }, { id: 'bluegill', name: 'Bluegill' },
-      { id: 'brooktrout', name: 'Brook Trout' }, { id: 'browntrout', name: 'Brown Trout' },
-      { id: 'carp', name: 'Carp' }, { id: 'catfish', name: 'Catfish' },
-      { id: 'chinooksalmon', name: 'Chinook Salmon' }, { id: 'cohosalmon', name: 'Coho Salmon' },
-      { id: 'crappie', name: 'Crappie' }, { id: 'freshwaterdrum', name: 'Freshwater Drum' },
-      { id: 'laketrout', name: 'Lake Trout' }, { id: 'lakewhitefish', name: 'Lake Whitefish' },
-      { id: 'largemouthbass', name: 'Largemouth Bass' }, { id: 'muskie', name: 'Muskie' },
-      { id: 'perch', name: 'Perch' }, { id: 'pike', name: 'Pike' },
-      { id: 'rainbowtrout', name: 'Rainbow Trout' }, { id: 'smallmouthbass', name: 'Smallmouth Bass' },
-      { id: 'splake', name: 'Splake' }, { id: 'sturgeon', name: 'Sturgeon' },
-      { id: 'walleye', name: 'Walleye' }
+      { id: 'smallmouthbass', name: 'Smallmouth Bass' },
+      { id: 'largemouthbass', name: 'Largemouth Bass' },
+      { id: 'walleye', name: 'Walleye' },
+      { id: 'perch', name: 'Perch' },
+      { id: 'pike', name: 'Pike' },
+      { id: 'muskie', name: 'Muskie' },
+      { id: 'laketrout', name: 'Lake Trout' },
+      { id: 'brooktrout', name: 'Brook Trout' },
+      { id: 'rainbowtrout', name: 'Rainbow Trout' },
+      { id: 'browntrout', name: 'Brown Trout' },
+      { id: 'chinooksalmon', name: 'Chinook Salmon' },
+      { id: 'cohosalmon', name: 'Coho Salmon' },
+      { id: 'atlanticsalmon', name: 'Atlantic Salmon' },
+      { id: 'crappie', name: 'Crappie' },
+      { id: 'bluegill', name: 'Bluegill' },
+      { id: 'catfish', name: 'Catfish' },
+      { id: 'carp', name: 'Carp' },
+      { id: 'freshwaterdrum', name: 'Freshwater Drum' },
+      { id: 'lakewhitefish', name: 'Lake Whitefish' },
+      { id: 'splake', name: 'Splake' },
+      { id: 'sturgeon', name: 'Sturgeon' }
     ];
 
     let lakesData = [];
     const sliderContainer = document.getElementById('fishSlider');
     const resultsContainer = document.getElementById('results');
-    const statusText = document.getElementById('dataStatus');
 
     async function loadLakeData() {
       try {
         const response = await fetch('lakesData.json');
         if (!response.ok) throw new Error("JSON not found");
         lakesData = await response.json();
-        statusText.innerText = `Database loaded: ${lakesData.length} lakes`;
         buildSlider();
       } catch (error) {
-        statusText.innerText = 'Error: Missing lakesData.json file';
-        resultsContainer.innerHTML = '<p class="status-msg">Please generate lakesData.json first.</p>';
+        resultsContainer.innerHTML = '<p class="status-msg">Error: Missing lakesData.json file. Please generate it first.</p>';
       }
     }
 
@@ -156,7 +295,7 @@
       resultsContainer.innerHTML = '<p class="status-msg">Finding your location...</p>';
 
       if (!navigator.geolocation) {
-        resultsContainer.innerHTML = '<p class="status-msg">Geolocation not supported.</p>';
+        resultsContainer.innerHTML = '<p class="status-msg">Geolocation not supported on this device.</p>';
         return;
       }
 
@@ -165,7 +304,7 @@
           findClosestLakes(speciesId, position.coords.latitude, position.coords.longitude);
         },
         (error) => {
-          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>';
+          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS to find lakes.</p>';
         }
       );
     }
@@ -187,18 +326,12 @@
 
       resultsContainer.innerHTML = '';
       topLakes.forEach(lake => {
-        
-        // --- NEW FILTERING LOGIC HERE ---
-        // 1. Get species IDs except the one we just searched for
         let otherSpeciesIds = lake.species.filter(s => s !== speciesId);
-        
-        // 2. Map the IDs to our fish dictionary objects, filter out undefined (minnows, etc), then extract names
         let readableOtherSpecies = otherSpeciesIds
           .map(id => fishSpecies.find(f => f.id === id))
           .filter(foundObj => foundObj !== undefined) 
           .map(foundObj => foundObj.name)
           .join(', ');
-        // --------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card">
