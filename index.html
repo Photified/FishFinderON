@@ -92,6 +92,24 @@
       margin-bottom: 15px; display: flex; justify-content: space-between;
       align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     }
+
+    /* --- NEW CSS FOR STOCKED LAKES --- */
+    .lake-card.stocked {
+      border-left: 5px solid #10b981;
+      background-color: rgba(16, 185, 129, 0.05);
+    }
+    .stocking-info {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      padding: 6px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-top: 10px;
+      line-height: 1.3;
+      display: inline-block;
+    }
+    /* --------------------------------- */
+
     .lake-info { flex: 1; padding-right: 10px; }
     .lake-info h3 { margin: 0 0 4px; font-size: 1.2rem; }
     
@@ -115,7 +133,6 @@
       padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;
     }
     
-    /* Google Maps Button */
     .maps-btn {
       background-color: #2563eb;
       color: white;
@@ -130,7 +147,6 @@
       box-shadow: 0 2px 4px rgba(0,0,0,0.3);
     }
 
-    /* Modal Styling */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); 
       z-index: 100; justify-content: center; align-items: center; padding: 20px;
@@ -295,7 +311,7 @@
     }
 
     function findClosestLakes(speciesId, userLat, userLon) {
-      let matchingLakes = lakesData.filter(lake => lake.species.includes(speciesId));
+      let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
 
       if (matchingLakes.length === 0) {
         resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species.</p>`;
@@ -315,16 +331,23 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        // The fully corrected Google Maps URL
-        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=$${lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
+        // --- NEW LOGIC FOR STOCKED LAKES ---
+        const stockedClass = lake.isStocked ? ' stocked' : '';
+        const stockingBadge = lake.isStocked && lake.stockingInfo 
+          ? `<div class="stocking-info">🐟 <strong>Stocked:</strong> ${lake.stockingInfo}</div>` 
+          : '';
+        // -----------------------------------
+
         resultsContainer.innerHTML += `
-          <div class="lake-card">
+          <div class="lake-card${stockedClass}">
             <div class="lake-info">
               <h3>${lake.name}</h3>
               <div class="lake-town">📍 ${townName}</div>
               <p class="species-list">${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
+              ${stockingBadge}
             </div>
             <div class="lake-actions">
               <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
