@@ -90,16 +90,23 @@
       background-color: var(--card-bg); border-radius: 12px; padding: 18px;
       margin-bottom: 15px; display: flex; justify-content: space-between;
       align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
     }
 
-    .lake-card.stocked {
+    /* --- LIT UP (MATCHING SPECIES) --- */
+    .lake-card.stocked-match {
       border-left: 5px solid #10b981;
       background-color: rgba(16, 185, 129, 0.05);
     }
 
+    /* --- GHOSTED (DIFFERENT SPECIES) --- */
+    .lake-card.stocked-ghost {
+      border-left: 5px solid #475569;
+      background-color: rgba(71, 85, 105, 0.05);
+    }
+
     .lake-info { flex: 1; padding-right: 10px; }
     
-    /* --- NEW CSS FOR TITLE ROW --- */
     .lake-title-row {
       display: flex;
       align-items: center;
@@ -107,8 +114,7 @@
       margin-bottom: 4px;
     }
     .lake-info h3 { margin: 0; font-size: 1.2rem; line-height: 1.2; }
-    /* ----------------------------- */
-
+    
     .lake-town {
       font-size: 0.85rem;
       color: var(--accent);
@@ -118,7 +124,7 @@
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    /* --- SHRUNK FISH BUTTON CSS --- */
+    /* --- BASE FISH BUTTON CSS --- */
     .stocking-toggle {
       background-color: var(--accent);
       border: none;
@@ -140,6 +146,15 @@
       transform: scale(0.9);
       background-color: #0284c7;
     }
+
+    /* --- GHOSTED BUTTON STYLES --- */
+    .stocked-ghost .stocking-toggle {
+      background-color: #334155;
+      box-shadow: none;
+      opacity: 0.6;
+      filter: grayscale(100%);
+    }
+
     .stocking-content {
       max-height: 0;
       overflow: hidden;
@@ -151,6 +166,8 @@
       margin-top: 12px;
       opacity: 1;
     }
+
+    /* --- BASE STOCKING INFO CSS (LIT UP) --- */
     .stocking-info {
       background-color: rgba(16, 185, 129, 0.1);
       border-left: 3px solid #10b981;
@@ -161,7 +178,13 @@
       line-height: 1.5;
       margin: 0;
     }
-    /* ------------------------- */
+
+    /* --- GHOSTED STOCKING INFO CSS --- */
+    .stocked-ghost .stocking-info {
+      background-color: rgba(71, 85, 105, 0.1);
+      border-left: 3px solid #475569;
+      color: #94a3b8;
+    }
 
     .lake-actions {
       display: flex;
@@ -285,11 +308,9 @@
     document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-    // --- UPDATED EVENT LOGIC TO FIND THE ACCORDION BOX ---
     document.getElementById('results').addEventListener('click', function(e) {
       const toggleBtn = e.target.closest('.stocking-toggle');
       if (toggleBtn) {
-        // Find the specific stocking content div associated with this lake card
         const lakeCard = toggleBtn.closest('.lake-info');
         const content = lakeCard.querySelector('.stocking-content');
         if (content) {
@@ -297,7 +318,6 @@
         }
       }
     });
-    // -----------------------------------------------------
 
     const fishSpecies = [
       { id: 'smallmouthbass', name: 'Smallmouth Bass' },
@@ -377,6 +397,11 @@
       matchingLakes.sort((a, b) => a.distance - b.distance);
       const topLakes = matchingLakes.slice(0, 10);
 
+      // --- GET THE FULL NAME OF THE SEARCHED FISH ---
+      const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
+      const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
+      // ----------------------------------------------
+
       resultsContainer.innerHTML = '';
       topLakes.forEach(lake => {
         let otherSpeciesIds = lake.species.filter(s => s !== speciesId);
@@ -389,12 +414,20 @@
         const mapsUrl = `http://googleusercontent.com/maps.google.com/4{lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
-        const stockedClass = lake.isStocked ? ' stocked' : '';
-        
-        // --- SPLIT THE BUTTON AND THE CONTENT ---
+        let stockedClass = '';
         let stockingBtnHTML = '';
         let stockingContentHTML = '';
+
         if (lake.isStocked && lake.stockingInfo) {
+          
+          // --- CHECK IF IT WAS STOCKED WITH THE SEARCHED FISH ---
+          if (lake.stockingInfo.toLowerCase().includes(searchedFishName)) {
+            stockedClass = ' stocked-match'; // Lights up green/blue
+          } else {
+            stockedClass = ' stocked-ghost'; // Faded out grey
+          }
+          // ------------------------------------------------------
+
           stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>`;
           stockingContentHTML = `
             <div class="stocking-content">
@@ -402,7 +435,6 @@
             </div>
           `;
         }
-        // ----------------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
