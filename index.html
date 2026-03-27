@@ -98,8 +98,17 @@
     }
 
     .lake-info { flex: 1; padding-right: 10px; }
-    .lake-info h3 { margin: 0 0 4px; font-size: 1.2rem; }
     
+    /* --- NEW CSS FOR TITLE ROW --- */
+    .lake-title-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+    .lake-info h3 { margin: 0; font-size: 1.2rem; line-height: 1.2; }
+    /* ----------------------------- */
+
     .lake-town {
       font-size: 0.85rem;
       color: var(--accent);
@@ -109,22 +118,21 @@
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    /* --- NEW AESTHETIC ACCORDION CSS --- */
+    /* --- SHRUNK FISH BUTTON CSS --- */
     .stocking-toggle {
       background-color: var(--accent);
       border: none;
       color: white;
-      width: 38px;
-      height: 38px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      font-size: 1.2rem;
+      font-size: 1rem;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      margin-top: 12px;
       padding: 0;
-      box-shadow: 0 3px 8px rgba(14, 165, 233, 0.4);
+      box-shadow: 0 2px 5px rgba(14, 165, 233, 0.4);
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
       line-height: 1;
     }
@@ -277,16 +285,19 @@
     document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
-    // --- UPDATED TOGGLE EVENT LOGIC ---
+    // --- UPDATED EVENT LOGIC TO FIND THE ACCORDION BOX ---
     document.getElementById('results').addEventListener('click', function(e) {
-      // Use .closest() to ensure the click registers even if they tap precisely on the emoji text
       const toggleBtn = e.target.closest('.stocking-toggle');
       if (toggleBtn) {
-        const content = toggleBtn.nextElementSibling;
-        content.classList.toggle('open');
+        // Find the specific stocking content div associated with this lake card
+        const lakeCard = toggleBtn.closest('.lake-info');
+        const content = lakeCard.querySelector('.stocking-content');
+        if (content) {
+          content.classList.toggle('open');
+        }
       }
     });
-    // ----------------------------------
+    // -----------------------------------------------------
 
     const fishSpecies = [
       { id: 'smallmouthbass', name: 'Smallmouth Bass' },
@@ -375,16 +386,17 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        const mapsUrl = `http://googleusercontent.com/maps.google.com/3{lake.lat},${lake.lon}`;
+        const mapsUrl = `http://googleusercontent.com/maps.google.com/4{lake.lat},${lake.lon}`;
         const townName = lake.town ? lake.town : 'Ontario';
 
         const stockedClass = lake.isStocked ? ' stocked' : '';
         
-        // --- UPDATED AESTHETIC ACCORDION HTML ---
-        let stockingHTML = '';
+        // --- SPLIT THE BUTTON AND THE CONTENT ---
+        let stockingBtnHTML = '';
+        let stockingContentHTML = '';
         if (lake.isStocked && lake.stockingInfo) {
-          stockingHTML = `
-            <button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>
+          stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>`;
+          stockingContentHTML = `
             <div class="stocking-content">
               <div class="stocking-info"><strong>Stocking Info:</strong><br>${lake.stockingInfo}</div>
             </div>
@@ -395,10 +407,17 @@
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
             <div class="lake-info">
-              <h3>${lake.name}</h3>
+              
+              <div class="lake-title-row">
+                <h3>${lake.name}</h3>
+                ${stockingBtnHTML}
+              </div>
+
               <div class="lake-town">📍 ${townName}</div>
               <p class="species-list">${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
-              ${stockingHTML}
+              
+              ${stockingContentHTML}
+
             </div>
             <div class="lake-actions">
               <div class="distance-badge">${lake.distance.toFixed(1)} km</div>
