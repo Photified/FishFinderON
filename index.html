@@ -64,9 +64,58 @@
     .settings-btn:active svg {
       transform: rotate(45deg);
     }
+
+    /* --- LOADING OVERLAY CSS --- */
+    .loading-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(18, 18, 18, 0.85);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      opacity: 1;
+      transition: opacity 0.3s ease;
+      backdrop-filter: blur(4px);
+    }
+    .loading-overlay.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+    .loading-content {
+      text-align: center;
+      padding: 20px;
+    }
+    .loading-logo {
+      width: 90px;
+      height: 90px;
+      border-radius: 20px;
+      animation: pulseFade 1.2s ease-in-out infinite alternate;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    }
+    @keyframes pulseFade {
+      0% { opacity: 0.3; transform: scale(0.95); }
+      100% { opacity: 1; transform: scale(1.05); }
+    }
+    .loading-text {
+      color: var(--accent);
+      font-weight: bold;
+      margin-top: 25px;
+      font-size: 1.2rem;
+    }
+    .loading-subtext {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin-top: 10px;
+      max-width: 260px;
+      line-height: 1.5;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    /* --------------------------- */
     
     .slider-container {
-      display: flex; overflow-x: auto; padding: 25px 15px; gap: 15px;
+      display: flex; overflow-x: auto; padding: 25px 15px 15px; gap: 15px;
       scroll-snap-type: x mandatory; scrollbar-width: none;
     }
     .slider-container::-webkit-scrollbar { display: none; }
@@ -83,6 +132,27 @@
     .fish-btn span { font-size: 0.8rem; text-align: center; font-weight: 600; }
     .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.15); transform: scale(1.05); }
     
+    .filter-bar {
+      padding: 0 20px 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      border-bottom: 1px solid #333;
+      margin-bottom: 20px;
+    }
+    .filter-bar select {
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid #444;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      outline: none;
+    }
+
     #results { padding: 0 20px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
     
@@ -93,13 +163,11 @@
       transition: all 0.3s ease;
     }
 
-    /* --- LIT UP (MATCHING SPECIES) --- */
     .lake-card.stocked-match {
       border-left: 5px solid #10b981;
       background-color: rgba(16, 185, 129, 0.05);
     }
 
-    /* --- GHOSTED (DIFFERENT SPECIES) --- */
     .lake-card.stocked-ghost {
       border-left: 5px solid #475569;
       background-color: rgba(71, 85, 105, 0.05);
@@ -124,7 +192,6 @@
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
     
-    /* --- BASE FISH BUTTON CSS --- */
     .stocking-toggle {
       background-color: var(--accent);
       border: none;
@@ -142,12 +209,8 @@
       transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
       line-height: 1;
     }
-    .stocking-toggle:active {
-      transform: scale(0.9);
-      background-color: #0284c7;
-    }
+    .stocking-toggle:active { transform: scale(0.9); background-color: #0284c7; }
 
-    /* --- GHOSTED BUTTON STYLES --- */
     .stocked-ghost .stocking-toggle {
       background-color: #334155;
       box-shadow: none;
@@ -161,29 +224,16 @@
       opacity: 0;
       transition: max-height 0.3s ease-out, margin-top 0.3s ease-out, opacity 0.3s ease-out;
     }
-    .stocking-content.open {
-      max-height: 200px;
-      margin-top: 12px;
-      opacity: 1;
-    }
+    .stocking-content.open { max-height: 200px; margin-top: 12px; opacity: 1; }
 
-    /* --- BASE STOCKING INFO CSS (LIT UP) --- */
     .stocking-info {
-      background-color: rgba(16, 185, 129, 0.1);
-      border-left: 3px solid #10b981;
-      color: #10b981;
-      padding: 10px 14px;
-      border-radius: 0 8px 8px 0;
-      font-size: 0.85rem;
-      line-height: 1.5;
-      margin: 0;
+      background-color: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981;
+      color: #10b981; padding: 10px 14px; border-radius: 0 8px 8px 0;
+      font-size: 0.85rem; line-height: 1.5; margin: 0;
     }
 
-    /* --- GHOSTED STOCKING INFO CSS --- */
     .stocked-ghost .stocking-info {
-      background-color: rgba(71, 85, 105, 0.1);
-      border-left: 3px solid #475569;
-      color: #94a3b8;
+      background-color: rgba(71, 85, 105, 0.1); border-left: 3px solid #475569; color: #94a3b8;
     }
 
     .lake-actions {
@@ -242,6 +292,14 @@
 </head>
 <body>
 
+  <div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loading-content">
+      <img src="images/icon.png" alt="Loading" class="loading-logo">
+      <p class="loading-text">Finding best spots...</p>
+      <p class="loading-subtext">If it's loading slowly, try reducing the search radius above.</p>
+    </div>
+  </div>
+
   <header>
     <img src="images/icon.png" alt="App Logo" class="app-logo">
     <h1>Fish Finder Ontario</h1>
@@ -253,6 +311,21 @@
   </header>
 
   <div class="slider-container" id="fishSlider"></div>
+
+  <div class="filter-bar">
+    <span>Results</span>
+    <div>
+      <label for="radiusFilter">Search Radius:</label>
+      <select id="radiusFilter">
+        <option value="25">25 km</option>
+        <option value="50" selected>50 km</option>
+        <option value="100">100 km</option>
+        <option value="250">250 km</option>
+        <option value="99999">Anywhere</option>
+      </select>
+    </div>
+  </div>
+
   <div id="results">
     <p class="status-msg">Tap a fish above to find nearby lakes.</p>
   </div>
@@ -270,7 +343,7 @@
         <p class="sub-text">Lake and species data compiled from Ontario GeoHub:</p>
         <ul class="sub-text">
           <li><a href="https://geohub.lio.gov.on.ca/datasets/lio::aquatic-resource-area-polygon-segment-/about" target="_blank">Aquatic Resource Area Polygon Segment</a></li>
-          <li><a href="https://geohub.lio.gov.on.ca/datasets/mnrf::fish-stocking-data-for-recreational-purposes/explore?location=46.970000%2C-84.650000%2C5" target="_blank">Fish Stocking Data for Recreational Purposes</a></li>
+          <li><a href="https://geohub.lio.gov.on.ca/datasets/mnrf::fish-stocking-data-for-recreational-purposes/explore" target="_blank">Fish Stocking Data for Recreational Purposes</a></li>
         </ul>
       </div>
     </div>
@@ -297,7 +370,6 @@
       if (deferredPrompt) {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
-        if (outcome === 'accepted') console.log('User accepted install');
         deferredPrompt = null;
         installBtn.style.display = 'none';
       }
@@ -318,6 +390,16 @@
         }
       }
     });
+
+    // --- LOADING SCREEN LOGIC ---
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    function showLoading() {
+      loadingOverlay.classList.remove('hidden');
+    }
+    function hideLoading() {
+      loadingOverlay.classList.add('hidden');
+    }
+    // ----------------------------
 
     const fishSpecies = [
       { id: 'smallmouthbass', name: 'Smallmouth Bass' },
@@ -346,6 +428,10 @@
     let lakesData = [];
     const sliderContainer = document.getElementById('fishSlider');
     const resultsContainer = document.getElementById('results');
+    const radiusFilter = document.getElementById('radiusFilter');
+    
+    let cachedUserLocation = null;
+    let currentActiveSpecies = null;
 
     async function loadLakeData() {
       try {
@@ -369,19 +455,50 @@
       });
     }
 
+    radiusFilter.addEventListener('change', () => {
+      if (currentActiveSpecies && cachedUserLocation) {
+        showLoading();
+        // Give the UI a millisecond to render the overlay before calculating
+        setTimeout(() => {
+          findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon);
+        }, 50);
+      }
+    });
+
     function handleFishSelection(speciesId, btnElement) {
+      currentActiveSpecies = speciesId;
       document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
       btnElement.classList.add('active');
-      resultsContainer.innerHTML = '<p class="status-msg">Finding your location...</p>';
+
+      showLoading();
+
+      if (cachedUserLocation) {
+        setTimeout(() => {
+          findClosestLakes(speciesId, cachedUserLocation.lat, cachedUserLocation.lon);
+        }, 50);
+        return;
+      }
+
+      resultsContainer.innerHTML = '<p class="status-msg">Finding your location for the first time...</p>';
 
       if (!navigator.geolocation) {
+        hideLoading();
         resultsContainer.innerHTML = '<p class="status-msg">Geolocation not supported on this device.</p>';
         return;
       }
 
       navigator.geolocation.getCurrentPosition(
-        (position) => findClosestLakes(speciesId, position.coords.latitude, position.coords.longitude),
-        (error) => { resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>'; }
+        (position) => {
+          cachedUserLocation = {
+            lat: position.coords.latitude,
+            lon: position.coords.longitude
+          };
+          findClosestLakes(speciesId, cachedUserLocation.lat, cachedUserLocation.lon);
+        },
+        (error) => { 
+          hideLoading();
+          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>'; 
+        }
       );
     }
 
@@ -389,13 +506,24 @@
       let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
 
       if (matchingLakes.length === 0) {
+        hideLoading();
         resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species.</p>`;
         return;
       }
 
       matchingLakes.forEach(lake => lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon));
+      
+      const maxRadius = parseInt(radiusFilter.value);
+      matchingLakes = matchingLakes.filter(lake => lake.distance <= maxRadius);
+
+      if (matchingLakes.length === 0) {
+        hideLoading();
+        resultsContainer.innerHTML = `<p class="status-msg">No lakes found within ${maxRadius === 99999 ? 'Ontario' : maxRadius + ' km'}. Try expanding your search radius!</p>`;
+        return;
+      }
+
       matchingLakes.sort((a, b) => a.distance - b.distance);
-      const topLakes = matchingLakes.slice(0, 10);
+      const topLakes = matchingLakes.slice(0, 20); 
 
       const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
       const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
@@ -409,9 +537,9 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        // --- FIXED GOOGLE MAPS DIRECTIONS URL ---
+        // --- THE CORRECT, FIXED GOOGLE MAPS URL ---
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
-        // ----------------------------------------
+        // ------------------------------------------
 
         const townName = lake.town ? lake.town : 'Ontario';
 
@@ -457,6 +585,8 @@
           </div>
         `;
       });
+      
+      hideLoading();
     }
 
     function calculateDistance(lat1, lon1, lat2, lon2) {
