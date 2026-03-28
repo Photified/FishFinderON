@@ -171,7 +171,6 @@
       font-weight: 600;
     }
 
-    /* NEW: Styling for the lake stats text */
     .lake-stats-text { 
       font-size: 0.8rem; 
       color: #cbd5e1; 
@@ -406,7 +405,9 @@
 
     async function loadLakeData() {
       try {
-        const response = await fetch('lakesData.json');
+        // Force bypass of cache to pull the new data
+        const cacheBuster = new Date().getTime();
+        const response = await fetch('lakesData.json?v=' + cacheBuster);
         if (!response.ok) throw new Error("JSON not found");
         lakesData = await response.json();
         buildSlider();
@@ -464,6 +465,13 @@
         return;
       }
 
+      // OPTIMIZATION: Stop GPS from hanging while searching for a satellite signal
+      const geoOptions = {
+        enableHighAccuracy: false, 
+        timeout: 5000, 
+        maximumAge: 60000 
+      };
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           cachedUserLocation = {
@@ -474,11 +482,13 @@
         },
         (error) => { 
           resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>'; 
-        }
+        },
+        geoOptions
       );
     }
 
     function findClosestLakes(speciesId, userLat, userLon) {
+      // 1. Immediately filter out lakes that don't have the species (MASSIVE speed boost)
       let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
 
       if (matchingLakes.length === 0) {
@@ -488,6 +498,7 @@
 
       const maxRadius = parseInt(radiusFilter.value);
 
+      // 2. Filter out lakes outside of the bounding box
       if (maxRadius !== 99999) {
         const latOffset = maxRadius / 111.0;
         const lonOffset = maxRadius / (111.0 * Math.cos(userLat * Math.PI / 180));
@@ -498,6 +509,7 @@
         });
       }
 
+      // 3. Calculate precise distance ONLY for the remaining nearby matched lakes
       let finalLakes = [];
       matchingLakes.forEach(lake => {
         lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
@@ -513,7 +525,6 @@
 
       finalLakes.sort((a, b) => a.distance - b.distance);
       
-      // --- DYNAMIC RESULTS LIMIT ---
       let resultLimit = 20;
       if (maxRadius === 100) resultLimit = 40;
       if (maxRadius === 250) resultLimit = 60;
@@ -521,7 +532,6 @@
       if (maxRadius === 99999) resultLimit = 100;
       
       const topLakes = finalLakes.slice(0, resultLimit); 
-      // -----------------------------
 
       const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
       const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
@@ -558,19 +568,19 @@
           `;
         }
 
-        // --- NEW: Generate the Lake Stats text if data is present ---
+        // Stats generation mapping WITH formatting for clean numbers
         let statsTextHTML = '';
         const statsArray = [];
         
         if (lake.fmz) statsArray.push(`Zone ${lake.fmz}`);
-        if (lake.maxDepth) statsArray.push(`Max Depth: ${lake.maxDepth}m`);
-        if (lake.secchiDepth) statsArray.push(`Clarity: ${lake.secchiDepth}m`);
-        if (lake.surfaceArea) statsArray.push(`Area: ${lake.surfaceArea} ha`);
+        if (lake.maxDepth) statsArray.push(`Max Depth: ${parseFloat(lake.maxDepth).toFixed(1)}m`);
+        if (lake.secchiDepth) statsArray.push(`Clarity: ${parseFloat(lake.secchiDepth).toFixed(1)}m`);
+        if (lake.surfaceArea) statsArray.push(`Area: ${parseFloat(lake.surfaceArea).toFixed(1)} ha`);
+        if (lake.waterbodyType) statsArray.push(`${lake.waterbodyType}`);
 
         if (statsArray.length > 0) {
           statsTextHTML = `<div class="lake-stats-text">${statsArray.join(' • ')}</div>`;
         }
-        // ------------------------------------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
