@@ -107,7 +107,6 @@
     #results { padding: 0 20px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
 
-    /* --- INLINE LOADING CSS --- */
     .inline-loading {
       text-align: center;
       padding: 40px 20px;
@@ -137,7 +136,6 @@
       max-width: 250px;
       line-height: 1.4;
     }
-    /* -------------------------- */
     
     .lake-card {
       background-color: var(--card-bg); border-radius: 12px; padding: 18px;
@@ -296,6 +294,7 @@
         <option value="50" selected>50 km</option>
         <option value="100">100 km</option>
         <option value="250">250 km</option>
+        <option value="500">500 km</option>
         <option value="99999">Anywhere</option>
       </select>
     </div>
@@ -482,9 +481,7 @@
 
       const maxRadius = parseInt(radiusFilter.value);
 
-      // --- NEW FAST BOUNDING BOX PRE-FILTER ---
       if (maxRadius !== 99999) {
-        // 1 degree of latitude is ~111km. We pad it slightly to be safe.
         const latOffset = maxRadius / 111.0;
         const lonOffset = maxRadius / (111.0 * Math.cos(userLat * Math.PI / 180));
         
@@ -493,9 +490,7 @@
                  Math.abs(lake.lon - userLon) <= lonOffset;
         });
       }
-      // ----------------------------------------
 
-      // Now we only calculate the heavy math for lakes that survived the fast filter
       let finalLakes = [];
       matchingLakes.forEach(lake => {
         lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
@@ -510,7 +505,16 @@
       }
 
       finalLakes.sort((a, b) => a.distance - b.distance);
-      const topLakes = finalLakes.slice(0, 20); 
+      
+      // --- DYNAMIC RESULTS LIMIT ---
+      let resultLimit = 20;
+      if (maxRadius === 100) resultLimit = 40;
+      if (maxRadius === 250) resultLimit = 60;
+      if (maxRadius === 500) resultLimit = 80;
+      if (maxRadius === 99999) resultLimit = 100;
+      
+      const topLakes = finalLakes.slice(0, resultLimit); 
+      // -----------------------------
 
       const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
       const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
@@ -524,9 +528,9 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        // --- FIXED GOOGLE MAPS URL (FOR REAL THIS TIME) ---
+        // --- NEW, FULLY FUNCTIONAL GOOGLE MAPS API URL ---
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
-        // --------------------------------------------------
+        // -------------------------------------------------
 
         const townName = lake.town ? lake.town : 'Ontario';
 
