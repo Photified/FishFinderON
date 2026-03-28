@@ -174,16 +174,19 @@
     .lake-stats-grid { 
       display: flex; 
       flex-wrap: wrap; 
-      column-gap: 12px; 
-      row-gap: 6px; 
+      gap: 8px; 
       margin-bottom: 12px; 
     }
     .stat-item { 
-      font-size: 0.8rem; 
-      color: #94a3b8; 
+      font-size: 0.75rem; 
+      color: var(--text-main); 
+      background-color: rgba(255, 255, 255, 0.08); 
+      padding: 4px 10px;
+      border-radius: 20px;
       display: flex; 
       align-items: center; 
-      gap: 4px; 
+      gap: 6px; 
+      border: 1px solid rgba(255, 255, 255, 0.1); 
     }
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
@@ -549,7 +552,6 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        // NEW: Advanced Google Maps Universal Navigation Link
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
 
         const townName = lake.town ? lake.town : 'Ontario';
@@ -565,7 +567,7 @@
             stockedClass = ' stocked-ghost'; 
           }
 
-          stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>`;
+          stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">ℹ️</button>`;
           stockingContentHTML = `
             <div class="stocking-content">
               <div class="stocking-info"><strong>Stocking Info:</strong><br>${lake.stockingInfo}</div>
@@ -582,23 +584,24 @@
 
         if (lake.waterbodyType) {
           let type = lake.waterbodyType.includes('Stream') ? 'River' : 'Lake';
-          statsArray.push(`<span class="stat-item">💧 ${type}</span>`);
+          let emoji = type === 'River' ? '💧' : '🌊';
+          statsArray.push(`<span class="stat-item">${emoji} ${type}</span>`);
         }
 
         if (lake.maxDepth) {
           const depth = parseFloat(lake.maxDepth).toFixed(1).replace(/\.0$/, '');
-          statsArray.push(`<span class="stat-item">🌊 ${depth}m deep</span>`);
+          statsArray.push(`<span class="stat-item">⚓ ${depth}m deep</span>`);
         }
 
         if (lake.surfaceArea) {
           let areaNum = parseFloat(lake.surfaceArea);
           let area = areaNum > 100 ? Math.round(areaNum) : areaNum.toFixed(1).replace(/\.0$/, '');
-          statsArray.push(`<span class="stat-item">📏 ${area} ha</span>`);
+          statsArray.push(`<span class="stat-item">🗺️ ${area} ha</span>`);
         }
 
         if (lake.secchiDepth) {
           const clarity = parseFloat(lake.secchiDepth).toFixed(1).replace(/\.0$/, '');
-          statsArray.push(`<span class="stat-item">🥽 ${clarity}m clear</span>`);
+          statsArray.push(`<span class="stat-item">🕶️ ${clarity}m clear</span>`);
         }
 
         if (statsArray.length > 0) {
