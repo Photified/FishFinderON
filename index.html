@@ -171,7 +171,6 @@
       font-weight: 600;
     }
 
-    /* NEW CLEAN STATS GRID */
     .lake-stats-grid { 
       display: flex; 
       flex-wrap: wrap; 
@@ -550,6 +549,7 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
+        // NEW: Advanced Google Maps Universal Navigation Link
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
 
         const townName = lake.town ? lake.town : 'Ontario';
@@ -573,7 +573,6 @@
           `;
         }
 
-        // --- NEW: CLEAN GRID STATS WITH ROUNDED NUMBERS ---
         let statsTextHTML = '';
         const statsArray = [];
         
@@ -587,14 +586,12 @@
         }
 
         if (lake.maxDepth) {
-          // Drop the .0 from numbers like 14.0 to save space, but keep 14.5
           const depth = parseFloat(lake.maxDepth).toFixed(1).replace(/\.0$/, '');
           statsArray.push(`<span class="stat-item">🌊 ${depth}m deep</span>`);
         }
 
         if (lake.surfaceArea) {
           let areaNum = parseFloat(lake.surfaceArea);
-          // If the lake is huge, round to a whole number. If small, keep 1 decimal place.
           let area = areaNum > 100 ? Math.round(areaNum) : areaNum.toFixed(1).replace(/\.0$/, '');
           statsArray.push(`<span class="stat-item">📏 ${area} ha</span>`);
         }
@@ -607,7 +604,6 @@
         if (statsArray.length > 0) {
           statsTextHTML = `<div class="lake-stats-grid">${statsArray.join('')}</div>`;
         }
-        // --------------------------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
