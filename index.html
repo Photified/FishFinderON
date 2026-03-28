@@ -13,6 +13,8 @@
       --accent: #0ea5e9;
       --text-main: #f1f5f9;
       --text-muted: #94a3b8;
+      --stocked-bg: rgba(14, 165, 233, 0.1);
+      --stocked-border: #0ea5e9;
     }
     body {
       margin: 0; padding: 0;
@@ -27,530 +29,254 @@
       align-items: center;
       padding: 15px 20px; 
       background: linear-gradient(135deg, #006eb3 0%, #003e6d 100%); 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      position: sticky;
-      top: 0;
-      z-index: 10;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
     }
-    .app-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    h1 { 
-      margin: 0; 
-      font-size: 1.4rem; 
-      color: #ffffff; 
-      font-weight: 700;
-      flex: 1;
-      text-align: center;
-    }
-    .settings-btn {
-      background: none;
-      border: none;
-      padding: 5px;
-      cursor: pointer;
+    
+    header h1 { margin: 0; font-size: 20px; color: white; }
+
+    .search-container {
+      padding: 20px;
       display: flex;
-      align-items: center;
-      justify-content: center;
+      flex-direction: column;
+      gap: 10px;
     }
-    .settings-btn svg {
-      width: 28px;
-      height: 28px;
-      fill: #ffffff;
-      transition: transform 0.2s ease;
-    }
-    .settings-btn:active svg {
-      transform: rotate(45deg);
-    }
-    
-    .slider-container {
-      display: flex; overflow-x: auto; padding: 25px 15px 15px; gap: 15px;
-      scroll-snap-type: x mandatory; scrollbar-width: none;
-    }
-    .slider-container::-webkit-scrollbar { display: none; }
-    
-    .fish-btn {
-      flex: 0 0 auto; scroll-snap-align: center;
-      background-color: var(--card-bg); border: 2px solid transparent;
-      border-radius: 12px; padding: 10px; width: 100px;
-      display: flex; flex-direction: column; align-items: center;
-      cursor: pointer; transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    .fish-btn img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; }
-    .fish-btn span { font-size: 0.8rem; text-align: center; font-weight: 600; }
-    .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.15); transform: scale(1.05); }
-    
-    .filter-bar {
-      padding: 0 20px 15px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-bottom: 1px solid #333;
-      margin-bottom: 20px;
-    }
-    .filter-bar select {
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 1px solid #444;
-      padding: 8px 12px;
+
+    input[type="text"] {
+      padding: 12px;
       border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      outline: none;
+      border: 1px solid #333;
+      background: #2a2a2a;
+      color: white;
+      font-size: 16px;
     }
 
-    #results { padding: 0 20px 30px; }
-    .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
-
-    .inline-loading {
-      text-align: center;
-      padding: 40px 20px;
-    }
-    .loading-logo {
-      width: 75px;
-      height: 75px;
-      border-radius: 18px;
-      animation: pulseFade 1.2s ease-in-out infinite alternate;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-    }
-    @keyframes pulseFade {
-      0% { opacity: 0.3; transform: scale(0.95); }
-      100% { opacity: 1; transform: scale(1.05); }
-    }
-    .loading-text {
-      color: var(--accent);
+    button.search-btn {
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-size: 16px;
       font-weight: bold;
-      margin-top: 25px;
-      font-size: 1.1rem;
-      margin-bottom: 5px;
+      cursor: pointer;
     }
-    .loading-subtext {
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      margin: 0 auto;
-      max-width: 250px;
-      line-height: 1.4;
-    }
-    
+
+    .results { padding: 0 20px 20px 20px; }
+
+    /* Lake Card Styles */
     .lake-card {
-      background-color: var(--card-bg); border-radius: 12px; padding: 18px;
-      margin-bottom: 15px; display: flex; justify-content: space-between;
-      align-items: flex-start; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-      transition: all 0.3s ease;
+      background: var(--card-bg);
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border: 1px solid #333;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
     }
 
-    .lake-card.stocked-match {
-      border-left: 5px solid #10b981;
-      background-color: rgba(16, 185, 129, 0.05);
+    .lake-card.stocked {
+      background: var(--stocked-bg);
+      border-color: var(--stocked-border);
     }
 
-    .lake-card.stocked-ghost {
-      border-left: 5px solid #475569;
-      background-color: rgba(71, 85, 105, 0.05);
-    }
-
-    .lake-info { flex: 1; padding-right: 10px; }
+    .lake-info { flex: 1; padding-right: 15px; }
     
     .lake-title-row {
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 4px;
+      margin-bottom: 5px;
     }
-    .lake-info h3 { margin: 0; font-size: 1.2rem; line-height: 1.2; }
+
+    .lake-title-row h3 { margin: 0; font-size: 18px; color: var(--text-main); }
+    .lake-town { font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
     
-    .lake-town {
-      font-size: 0.85rem;
-      color: var(--accent);
-      margin: 0 0 10px 0;
-      font-weight: 600;
+    /* NEW: Lake Stats Grid */
+    .lake-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 10px;
     }
+    .stat-badge {
+      background: #333;
+      color: #cbd5e1;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .species-list { font-size: 13px; color: #cbd5e1; margin: 0 0 10px 0; line-height: 1.4; }
     
-    .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
-    
-    .stocking-toggle {
-      background-color: var(--accent);
-      border: none;
+    .stocking-btn {
+      background: var(--accent);
       color: white;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      font-size: 1rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0;
-      box-shadow: 0 2px 5px rgba(14, 165, 233, 0.4);
-      transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background-color 0.2s;
-      line-height: 1;
-    }
-    .stocking-toggle:active { transform: scale(0.9); background-color: #0284c7; }
-
-    .stocked-ghost .stocking-toggle {
-      background-color: #334155;
-      box-shadow: none;
-      opacity: 0.6;
-      filter: grayscale(100%);
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: bold;
     }
 
-    .stocking-content {
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      transition: max-height 0.3s ease-out, margin-top 0.3s ease-out, opacity 0.3s ease-out;
-    }
-    .stocking-content.open { max-height: 200px; margin-top: 12px; opacity: 1; }
-
-    .stocking-info {
-      background-color: rgba(16, 185, 129, 0.1); border-left: 3px solid #10b981;
-      color: #10b981; padding: 10px 14px; border-radius: 0 8px 8px 0;
-      font-size: 0.85rem; line-height: 1.5; margin: 0;
-    }
-
-    .stocked-ghost .stocking-info {
-      background-color: rgba(71, 85, 105, 0.1); border-left: 3px solid #475569; color: #94a3b8;
-    }
+    .stocking-content { margin-top: 10px; font-size: 13px; color: #7dd3fc; }
 
     .lake-actions {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
-      gap: 12px;
+      gap: 10px;
+      min-width: 60px;
     }
+
     .distance-badge {
-      background-color: rgba(14, 165, 233, 0.2); color: var(--accent);
-      padding: 6px 10px; border-radius: 20px; font-weight: bold; font-size: 0.85rem; white-space: nowrap;
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--accent);
+      text-align: right;
     }
-    
+
     .maps-btn {
-      background-color: #2563eb;
+      background: #22c55e;
       color: white;
       text-decoration: none;
-      padding: 8px 16px; 
-      border-radius: 8px;
-      font-size: 0.85rem;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
       font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
     }
 
-    .modal-overlay {
-      display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); 
-      z-index: 100; justify-content: center; align-items: center; padding: 20px;
-      backdrop-filter: blur(4px);
-    }
-    .modal-overlay.open { display: flex; }
-    .modal-content {
-      background: var(--card-bg); width: 100%; max-width: 350px; 
-      border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-    }
-    .modal-content h2 { margin: 0 0 15px; color: var(--accent); font-size: 1.4rem; }
-    .modal-content p { color: var(--text-main); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
-    .modal-content .sub-text { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 20px; }
-    
-    .btn {
-      width: 100%; padding: 14px; border: none; border-radius: 10px;
-      font-size: 1rem; font-weight: bold; cursor: pointer; margin-bottom: 10px;
-    }
-    .btn-primary { background: var(--accent); color: #fff; display: none; }
-    .btn-secondary { background: #333; color: #fff; }
+    #loading { text-align: center; display: none; margin-top: 20px; color: var(--text-muted); }
 
-    .data-sources { margin-top: 20px; padding-top: 15px; border-top: 1px solid #333; }
-    .data-sources h4 { margin: 0 0 5px; color: var(--text-main); font-size: 0.95rem; }
-    .data-sources p { margin: 0 0 10px; font-size: 0.8rem; }
-    .data-sources ul { margin: 0; padding-left: 20px; font-size: 0.85rem; }
-    .data-sources li { margin-bottom: 6px; }
-    .data-sources a { color: var(--accent); text-decoration: none; }
   </style>
 </head>
 <body>
 
   <header>
-    <img src="images/icon.png" alt="App Logo" class="app-logo">
-    <h1>Fish Finder Ontario</h1>
-    <button class="settings-btn" id="openSettingsBtn" aria-label="Settings">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M19.14,12.94c0.04-0.3,0.06-0.61,0.06-0.94c0-0.32-0.02-0.64-0.06-0.94l2.03-1.58c0.18-0.14,0.23-0.41,0.12-0.61 l-1.92-3.32c-0.12-0.22-0.37-0.29-0.59-0.22l-2.39,0.96c-0.5-0.38-1.03-0.7-1.62-0.94L14.4,2.81c-0.04-0.24-0.24-0.41-0.48-0.41 h-3.84c-0.24,0-0.43,0.17-0.47,0.41L9.25,5.35C8.66,5.59,8.12,5.92,7.63,6.29L5.24,5.33c-0.22-0.08-0.47,0-0.59,0.22L2.73,8.87 C2.62,9.08,2.66,9.34,2.86,9.48l2.03,1.58C4.84,11.36,4.8,11.69,4.8,12s0.02,0.64,0.06,0.94l-2.03,1.58 c-0.18,0.14-0.23,0.41-0.12,0.61l1.92,3.32c0.12,0.22,0.37,0.29,0.59,0.22l2.39-0.96c0.5,0.38,1.03,0.7,1.62,0.94l0.36,2.54 c0.05,0.24,0.24,0.41,0.48,0.41h3.84c0.24,0,0.43-0.17,0.47-0.41l0.36-2.54c0.59-0.24,1.13-0.56,1.62-0.94l2.39,0.96 c0.22,0.08,0.47,0,0.59-0.22l1.92-3.32c0.12-0.22,0.07-0.49-0.12-0.61L19.14,12.94z M12,15.6c-1.98,0-3.6-1.62-3.6-3.6 s1.62-3.6,3.6-3.6s3.6,1.62,3.6,3.6S13.98,15.6,12,15.6z"/>
-      </svg>
-    </button>
+    <h1>🐟 Fish Finder ON</h1>
   </header>
 
-  <div class="slider-container" id="fishSlider"></div>
-
-  <div class="filter-bar">
-    <span>Results</span>
-    <div>
-      <label for="radiusFilter">Search Radius:</label>
-      <select id="radiusFilter">
-        <option value="25">25 km</option>
-        <option value="50" selected>50 km</option>
-        <option value="100">100 km</option>
-        <option value="250">250 km</option>
-        <option value="500">500 km</option>
-        <option value="99999">Anywhere</option>
-      </select>
-    </div>
+  <div class="search-container">
+    <input type="text" id="speciesSearch" placeholder="Enter a fish species (e.g. Walleye)...">
+    <button class="search-btn" onclick="searchLakes()">Find Lakes Near Me</button>
   </div>
 
-  <div id="results">
-    <p class="status-msg">Tap a fish above to find nearby lakes.</p>
-  </div>
-
-  <div class="modal-overlay" id="settingsModal">
-    <div class="modal-content">
-      <h2>Settings & Info</h2>
-      <p>Install Fish Finder Ontario to your device to use it offline while you're out on the water!</p>
-      <p class="sub-text"><strong>Android/Chrome:</strong> Tap the Download App button below.<br><strong>iOS/Safari:</strong> Tap the Share icon at the bottom of your screen, then select "Add to Home Screen".</p>
-      <button class="btn btn-primary" id="installBtn">Download App</button>
-      <button class="btn btn-secondary" id="closeSettingsBtn">Close</button>
-      
-      <div class="data-sources">
-        <h4>Data Sources</h4>
-        <p class="sub-text">Lake and species data compiled from Ontario GeoHub:</p>
-        <ul class="sub-text">
-          <li><a href="https://geohub.lio.gov.on.ca/datasets/lio::aquatic-resource-area-polygon-segment-/about" target="_blank">Aquatic Resource Area Polygon Segment</a></li>
-          <li><a href="https://geohub.lio.gov.on.ca/datasets/mnrf::fish-stocking-data-for-recreational-purposes/explore" target="_blank">Fish Stocking Data for Recreational Purposes</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
+  <div id="loading">Locating you and searching lakes...</div>
+  <div class="results" id="resultsContainer"></div>
 
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-          .catch(err => console.error('Service Worker failed.', err));
-      });
-    }
+    let allLakes = [];
+    let userLat = null;
+    let userLon = null;
 
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
+    // Load data on startup
+    fetch('updatedLakesData.json') // Make sure this points to your newly merged file!
+      .then(response => response.json())
+      .then(data => { allLakes = data; })
+      .catch(err => console.error("Error loading lakes data:", err));
 
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-    });
-
-    installBtn.addEventListener('click', async () => {
-      if (deferredPrompt) {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
-        deferredPrompt = null;
-        installBtn.style.display = 'none';
-      }
-    });
-
-    const settingsModal = document.getElementById('settingsModal');
-    document.getElementById('openSettingsBtn').addEventListener('click', () => settingsModal.classList.add('open'));
-    document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
-    settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
-
-    document.getElementById('results').addEventListener('click', function(e) {
-      const toggleBtn = e.target.closest('.stocking-toggle');
-      if (toggleBtn) {
-        const lakeCard = toggleBtn.closest('.lake-info');
-        const content = lakeCard.querySelector('.stocking-content');
-        if (content) {
-          content.classList.toggle('open');
-        }
-      }
-    });
-
-    const fishSpecies = [
-      { id: 'smallmouthbass', name: 'Smallmouth Bass' },
-      { id: 'largemouthbass', name: 'Largemouth Bass' },
-      { id: 'walleye', name: 'Walleye' },
-      { id: 'perch', name: 'Perch' },
-      { id: 'pike', name: 'Pike' },
-      { id: 'muskie', name: 'Muskie' },
-      { id: 'laketrout', name: 'Lake Trout' },
-      { id: 'brooktrout', name: 'Brook Trout' },
-      { id: 'rainbowtrout', name: 'Rainbow Trout' },
-      { id: 'browntrout', name: 'Brown Trout' },
-      { id: 'chinooksalmon', name: 'Chinook Salmon' },
-      { id: 'cohosalmon', name: 'Coho Salmon' },
-      { id: 'atlanticsalmon', name: 'Atlantic Salmon' },
-      { id: 'crappie', name: 'Crappie' },
-      { id: 'bluegill', name: 'Bluegill' },
-      { id: 'catfish', name: 'Catfish' },
-      { id: 'carp', name: 'Carp' },
-      { id: 'freshwaterdrum', name: 'Freshwater Drum' },
-      { id: 'lakewhitefish', name: 'Lake Whitefish' },
-      { id: 'splake', name: 'Splake' },
-      { id: 'sturgeon', name: 'Sturgeon' }
-    ];
-
-    let lakesData = [];
-    const sliderContainer = document.getElementById('fishSlider');
-    const resultsContainer = document.getElementById('results');
-    const radiusFilter = document.getElementById('radiusFilter');
-    
-    let cachedUserLocation = null;
-    let currentActiveSpecies = null;
-
-    async function loadLakeData() {
-      try {
-        const response = await fetch('lakesData.json');
-        if (!response.ok) throw new Error("JSON not found");
-        lakesData = await response.json();
-        buildSlider();
-      } catch (error) {
-        resultsContainer.innerHTML = '<p class="status-msg">Error: Missing lakesData.json file.</p>';
-      }
-    }
-
-    function buildSlider() {
-      fishSpecies.forEach(fish => {
-        const btn = document.createElement('div');
-        btn.className = 'fish-btn';
-        btn.dataset.id = fish.id;
-        btn.innerHTML = `<img src="images/${fish.id}.png" alt="${fish.name}"><span>${fish.name}</span>`;
-        btn.addEventListener('click', () => handleFishSelection(fish.id, btn));
-        sliderContainer.appendChild(btn);
-      });
-    }
-
-    function showInlineLoading() {
-      resultsContainer.innerHTML = `
-        <div class="inline-loading">
-          <img src="images/icon.png" alt="Loading" class="loading-logo">
-          <p class="loading-text">Finding best spots...</p>
-          <p class="loading-subtext">Adjust the search radius above if it takes too long.</p>
-        </div>
-      `;
-    }
-
-    radiusFilter.addEventListener('change', () => {
-      if (currentActiveSpecies && cachedUserLocation) {
-        showInlineLoading();
-        setTimeout(() => {
-          findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon);
-        }, 50);
-      }
-    });
-
-    function handleFishSelection(speciesId, btnElement) {
-      currentActiveSpecies = speciesId;
-      document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
-      btnElement.classList.add('active');
-
-      showInlineLoading();
-
-      if (cachedUserLocation) {
-        setTimeout(() => {
-          findClosestLakes(speciesId, cachedUserLocation.lat, cachedUserLocation.lon);
-        }, 50);
-        return;
-      }
-
-      if (!navigator.geolocation) {
-        resultsContainer.innerHTML = '<p class="status-msg">Geolocation not supported on this device.</p>';
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          cachedUserLocation = {
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          };
-          findClosestLakes(speciesId, cachedUserLocation.lat, cachedUserLocation.lon);
-        },
-        (error) => { 
-          resultsContainer.innerHTML = '<p class="status-msg">Location access denied. Please allow GPS.</p>'; 
-        }
-      );
-    }
-
-    function findClosestLakes(speciesId, userLat, userLon) {
-      let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
-
-      if (matchingLakes.length === 0) {
-        resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species.</p>`;
-        return;
-      }
-
-      const maxRadius = parseInt(radiusFilter.value);
-
-      if (maxRadius !== 99999) {
-        const latOffset = maxRadius / 111.0;
-        const lonOffset = maxRadius / (111.0 * Math.cos(userLat * Math.PI / 180));
-        
-        matchingLakes = matchingLakes.filter(lake => {
-          return Math.abs(lake.lat - userLat) <= latOffset && 
-                 Math.abs(lake.lon - userLon) <= lonOffset;
-        });
-      }
-
-      let finalLakes = [];
-      matchingLakes.forEach(lake => {
-        lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
-        if (lake.distance <= maxRadius) {
-          finalLakes.push(lake);
-        }
-      });
-
-      if (finalLakes.length === 0) {
-        resultsContainer.innerHTML = `<p class="status-msg">No lakes found within ${maxRadius === 99999 ? 'Ontario' : maxRadius + ' km'}. Try expanding your search radius!</p>`;
-        return;
-      }
-
-      finalLakes.sort((a, b) => a.distance - b.distance);
+    function searchLakes() {
+      const searchTerm = document.getElementById('speciesSearch').value.toLowerCase().replace(/\s+/g, '');
+      const resultsContainer = document.getElementById('resultsContainer');
+      const loading = document.getElementById('loading');
       
-      // --- DYNAMIC RESULTS LIMIT ---
-      let resultLimit = 20;
-      if (maxRadius === 100) resultLimit = 40;
-      if (maxRadius === 250) resultLimit = 60;
-      if (maxRadius === 500) resultLimit = 80;
-      if (maxRadius === 99999) resultLimit = 100;
-      
-      const topLakes = finalLakes.slice(0, resultLimit); 
-      // -----------------------------
-
-      const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
-      const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
+      if (!searchTerm) {
+        alert("Please enter a fish species.");
+        return;
+      }
 
       resultsContainer.innerHTML = '';
+      loading.style.display = 'block';
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            userLat = position.coords.latitude;
+            userLon = position.coords.longitude;
+            processResults(searchTerm);
+          },
+          (error) => {
+            alert("Could not get your location. Defaulting to Central Ontario.");
+            userLat = 45.0; // Default fallback
+            userLon = -78.0;
+            processResults(searchTerm);
+          }
+        );
+      } else {
+        alert("Geolocation is not supported by your browser.");
+        loading.style.display = 'none';
+      }
+    }
+
+    function processResults(searchTerm) {
+      const resultsContainer = document.getElementById('resultsContainer');
+      const loading = document.getElementById('loading');
+      
+      // Filter by species
+      let filteredLakes = allLakes.filter(lake => 
+        lake.species && lake.species.some(s => s.toLowerCase().includes(searchTerm))
+      );
+
+      // Calculate distance for each
+      filteredLakes.forEach(lake => {
+        lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
+      });
+
+      // Sort by closest
+      filteredLakes.sort((a, b) => a.distance - b.distance);
+
+      // Take top 30
+      const topLakes = filteredLakes.slice(0, 30);
+      loading.style.display = 'none';
+
+      if (topLakes.length === 0) {
+        resultsContainer.innerHTML = '<p>No lakes found with that species nearby.</p>';
+        return;
+      }
+
       topLakes.forEach(lake => {
-        let otherSpeciesIds = lake.species.filter(s => s !== speciesId);
-        let readableOtherSpecies = otherSpeciesIds
-          .map(id => fishSpecies.find(f => f.id === id))
-          .filter(foundObj => foundObj !== undefined) 
-          .map(foundObj => foundObj.name)
-          .join(', ');
-
-        // --- NEW, FULLY FUNCTIONAL GOOGLE MAPS API URL ---
+        const townName = lake.town || 'Unknown Area';
         const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
-        // -------------------------------------------------
+        
+        // Filter out the searched species to show "other" species
+        const otherSpecies = lake.species.filter(s => !s.toLowerCase().includes(searchTerm));
+        const readableOtherSpecies = otherSpecies.join(', ');
 
-        const townName = lake.town ? lake.town : 'Ontario';
-
-        let stockedClass = '';
+        const stockedClass = lake.isStocked ? ' stocked' : '';
         let stockingBtnHTML = '';
         let stockingContentHTML = '';
 
-        if (lake.isStocked && lake.stockingInfo) {
-          if (lake.stockingInfo.toLowerCase().includes(searchedFishName)) {
-            stockedClass = ' stocked-match'; 
-          } else {
-            stockedClass = ' stocked-ghost'; 
-          }
-
-          stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>`;
+        if (lake.isStocked) {
+          stockingBtnHTML = `<span class="stocking-btn">STOCKED</span>`;
           stockingContentHTML = `
             <div class="stocking-content">
               <div class="stocking-info"><strong>Stocking Info:</strong><br>${lake.stockingInfo}</div>
             </div>
           `;
+        }
+
+        // NEW: Generate the Lake Stats block dynamically based on what data is available
+        let statsHTML = '';
+        const statsArray = [];
+        
+        if (lake.fmz) statsArray.push(`🎣 Zone ${lake.fmz}`);
+        if (lake.maxDepth) statsArray.push(`🌊 Max Depth: ${lake.maxDepth}m`);
+        if (lake.secchiDepth) statsArray.push(`🥽 Clarity: ${lake.secchiDepth}m`);
+        if (lake.surfaceArea) statsArray.push(`📏 Area: ${lake.surfaceArea} ha`);
+        if (lake.thermalRegime) statsArray.push(`🌡️ ${lake.thermalRegime}`);
+        if (lake.waterbodyType) statsArray.push(`💧 ${lake.waterbodyType}`);
+
+        if (statsArray.length > 0) {
+          statsHTML = `<div class="lake-stats">`;
+          statsArray.forEach(stat => {
+            statsHTML += `<span class="stat-badge">${stat}</span>`;
+          });
+          statsHTML += `</div>`;
         }
 
         resultsContainer.innerHTML += `
@@ -563,6 +289,9 @@
               </div>
 
               <div class="lake-town">📍 ${townName}</div>
+              
+              ${statsHTML}
+
               <p class="species-list">${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
               
               ${stockingContentHTML}
@@ -582,11 +311,19 @@
       const dLat = (lat2 - lat1) * (Math.PI / 180);
       const dLon = (lon2 - lon1) * (Math.PI / 180);
       const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * (Math.PI/180)) * Math.cos(lat2 * (Math.PI/180)) * Math.sin(dLon/2) * Math.sin(dLon/2);
-      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
+                Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) * Math.sin(dLon/2) * Math.sin(dLon/2); 
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      return R * c;
     }
 
-    loadLakeData();
+    // PWA Service Worker Registration
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(registration => console.log('ServiceWorker registered'))
+          .catch(err => console.log('ServiceWorker registration failed: ', err));
+      });
+    }
   </script>
 </body>
 </html>
