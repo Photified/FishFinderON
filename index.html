@@ -167,14 +167,24 @@
     .lake-town {
       font-size: 0.85rem;
       color: var(--accent);
-      margin: 0 0 6px 0;
+      margin: 0 0 10px 0;
       font-weight: 600;
     }
 
-    .lake-stats-text { 
+    /* NEW CLEAN STATS GRID */
+    .lake-stats-grid { 
+      display: flex; 
+      flex-wrap: wrap; 
+      column-gap: 12px; 
+      row-gap: 6px; 
+      margin-bottom: 12px; 
+    }
+    .stat-item { 
       font-size: 0.8rem; 
-      color: #cbd5e1; 
-      margin-bottom: 10px; 
+      color: #94a3b8; 
+      display: flex; 
+      align-items: center; 
+      gap: 4px; 
     }
     
     .lake-info p.species-list { margin: 0; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4; }
@@ -405,7 +415,6 @@
 
     async function loadLakeData() {
       try {
-        // Force bypass of cache to pull the new data
         const cacheBuster = new Date().getTime();
         const response = await fetch('lakesData.json?v=' + cacheBuster);
         if (!response.ok) throw new Error("JSON not found");
@@ -465,7 +474,6 @@
         return;
       }
 
-      // OPTIMIZATION: Stop GPS from hanging while searching for a satellite signal
       const geoOptions = {
         enableHighAccuracy: false, 
         timeout: 5000, 
@@ -488,7 +496,6 @@
     }
 
     function findClosestLakes(speciesId, userLat, userLon) {
-      // 1. Immediately filter out lakes that don't have the species (MASSIVE speed boost)
       let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
 
       if (matchingLakes.length === 0) {
@@ -498,7 +505,6 @@
 
       const maxRadius = parseInt(radiusFilter.value);
 
-      // 2. Filter out lakes outside of the bounding box
       if (maxRadius !== 99999) {
         const latOffset = maxRadius / 111.0;
         const lonOffset = maxRadius / (111.0 * Math.cos(userLat * Math.PI / 180));
@@ -509,7 +515,6 @@
         });
       }
 
-      // 3. Calculate precise distance ONLY for the remaining nearby matched lakes
       let finalLakes = [];
       matchingLakes.forEach(lake => {
         lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
@@ -568,19 +573,41 @@
           `;
         }
 
-        // Stats generation mapping WITH formatting for clean numbers
+        // --- NEW: CLEAN GRID STATS WITH ROUNDED NUMBERS ---
         let statsTextHTML = '';
         const statsArray = [];
         
-        if (lake.fmz) statsArray.push(`Zone ${lake.fmz}`);
-        if (lake.maxDepth) statsArray.push(`Max Depth: ${parseFloat(lake.maxDepth).toFixed(1)}m`);
-        if (lake.secchiDepth) statsArray.push(`Clarity: ${parseFloat(lake.secchiDepth).toFixed(1)}m`);
-        if (lake.surfaceArea) statsArray.push(`Area: ${parseFloat(lake.surfaceArea).toFixed(1)} ha`);
-        if (lake.waterbodyType) statsArray.push(`${lake.waterbodyType}`);
+        if (lake.fmz) {
+          statsArray.push(`<span class="stat-item">📍 Zone ${lake.fmz}</span>`);
+        }
+
+        if (lake.waterbodyType) {
+          let type = lake.waterbodyType.includes('Stream') ? 'River' : 'Lake';
+          statsArray.push(`<span class="stat-item">💧 ${type}</span>`);
+        }
+
+        if (lake.maxDepth) {
+          // Drop the .0 from numbers like 14.0 to save space, but keep 14.5
+          const depth = parseFloat(lake.maxDepth).toFixed(1).replace(/\.0$/, '');
+          statsArray.push(`<span class="stat-item">🌊 ${depth}m deep</span>`);
+        }
+
+        if (lake.surfaceArea) {
+          let areaNum = parseFloat(lake.surfaceArea);
+          // If the lake is huge, round to a whole number. If small, keep 1 decimal place.
+          let area = areaNum > 100 ? Math.round(areaNum) : areaNum.toFixed(1).replace(/\.0$/, '');
+          statsArray.push(`<span class="stat-item">📏 ${area} ha</span>`);
+        }
+
+        if (lake.secchiDepth) {
+          const clarity = parseFloat(lake.secchiDepth).toFixed(1).replace(/\.0$/, '');
+          statsArray.push(`<span class="stat-item">🥽 ${clarity}m clear</span>`);
+        }
 
         if (statsArray.length > 0) {
-          statsTextHTML = `<div class="lake-stats-text">${statsArray.join(' • ')}</div>`;
+          statsTextHTML = `<div class="lake-stats-grid">${statsArray.join('')}</div>`;
         }
+        // --------------------------------------------------
 
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
@@ -591,7 +618,7 @@
                 ${stockingBtnHTML}
               </div>
 
-              <div class="lake-town">📍 ${townName}</div>
+              <div class="lake-town">${townName}</div>
               
               ${statsTextHTML}
 
