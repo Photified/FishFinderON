@@ -397,10 +397,8 @@
       matchingLakes.sort((a, b) => a.distance - b.distance);
       const topLakes = matchingLakes.slice(0, 10);
 
-      // --- GET THE FULL NAME OF THE SEARCHED FISH ---
       const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
       const searchedFishName = searchedFishObj ? searchedFishObj.name.toLowerCase() : '';
-      // ----------------------------------------------
 
       resultsContainer.innerHTML = '';
       topLakes.forEach(lake => {
@@ -411,7 +409,10 @@
           .map(foundObj => foundObj.name)
           .join(', ');
 
-        const mapsUrl = `http://googleusercontent.com/maps.google.com/4{lake.lat},${lake.lon}`;
+        // --- FIXED GOOGLE MAPS DIRECTIONS URL ---
+        const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lake.lat},${lake.lon}`;
+        // ----------------------------------------
+
         const townName = lake.town ? lake.town : 'Ontario';
 
         let stockedClass = '';
@@ -420,13 +421,11 @@
 
         if (lake.isStocked && lake.stockingInfo) {
           
-          // --- CHECK IF IT WAS STOCKED WITH THE SEARCHED FISH ---
           if (lake.stockingInfo.toLowerCase().includes(searchedFishName)) {
-            stockedClass = ' stocked-match'; // Lights up green/blue
+            stockedClass = ' stocked-match'; 
           } else {
-            stockedClass = ' stocked-ghost'; // Faded out grey
+            stockedClass = ' stocked-ghost'; 
           }
-          // ------------------------------------------------------
 
           stockingBtnHTML = `<button class="stocking-toggle" aria-label="Toggle Stocking Info">🐟</button>`;
           stockingContentHTML = `
