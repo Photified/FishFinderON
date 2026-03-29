@@ -68,14 +68,17 @@
       transform: rotate(45deg);
     }
     
+    /* UPDATED: Wrapper is now a standard flexbox that bounds the arrows */
     .slider-wrapper {
-      position: relative;
       display: flex;
       align-items: center;
+      padding: 0 10px;
+      background-color: var(--bg-color);
     }
     
+    /* UPDATED: Arrows take up their own space and don't float over content */
     .slider-arrow {
-      position: absolute;
+      flex-shrink: 0;
       z-index: 5;
       background: rgba(14, 165, 233, 0.85); 
       color: white;
@@ -92,18 +95,21 @@
       box-shadow: 0 4px 6px rgba(0,0,0,0.4);
     }
     .slider-arrow:active { transform: scale(0.9); }
-    #scrollLeftBtn { left: 10px; opacity: 0; pointer-events: none; }
-    #scrollRightBtn { right: 10px; }
+    
+    #scrollLeftBtn { opacity: 0; pointer-events: none; margin-right: 5px; }
+    #scrollRightBtn { margin-left: 5px; }
 
+    /* UPDATED: Container flexes to fill middle and has less padding */
     .slider-container {
-      display: flex; overflow-x: auto; padding: 25px 15px 15px; gap: 15px;
+      flex: 1;
+      display: flex; overflow-x: auto; padding: 25px 5px 15px 5px; gap: 15px;
       scroll-snap-type: x mandatory; scrollbar-width: none;
-      width: 100%;
     }
     .slider-container::-webkit-scrollbar { display: none; }
     
+    /* UPDATED: Snap alignment set to start */
     .fish-btn {
-      flex: 0 0 auto; scroll-snap-align: center;
+      flex: 0 0 auto; scroll-snap-align: start; 
       background-color: var(--card-bg); border: 2px solid transparent;
       border-radius: 12px; padding: 10px; width: 100px;
       display: flex; flex-direction: column; align-items: center;
@@ -449,7 +455,6 @@
     document.getElementById('saveNoteBtn').addEventListener('click', () => {
       if (pendingNoteLakeId) {
         const newNote = noteInput.value.trim();
-        // Ensure the lake is in favorites if they are adding a note
         if (!savedLakes[pendingNoteLakeId]) savedLakes[pendingNoteLakeId] = {};
         
         savedLakes[pendingNoteLakeId].note = newNote;
@@ -472,14 +477,12 @@
 
     // --- EVENT DELEGATION FOR DYNAMIC BUTTONS ---
     document.getElementById('results').addEventListener('click', function(e) {
-      // 1. Stocking Toggle Button
       const toggleBtn = e.target.closest('.stocking-toggle');
       if (toggleBtn) {
         const content = toggleBtn.closest('.lake-info').querySelector('.stocking-content');
         if (content) content.classList.toggle('open');
       }
 
-      // 2. Open Custom Note Modal
       const noteBtn = e.target.closest('.note-btn');
       if (noteBtn) {
         pendingNoteLakeId = noteBtn.dataset.lakeid;
@@ -487,7 +490,6 @@
         noteModal.classList.add('open');
       }
 
-      // 3. Star / Favorite Button
       const starBtn = e.target.closest('.star-btn');
       if (starBtn) {
         const lakeId = starBtn.dataset.lakeid;
@@ -580,7 +582,6 @@
       `;
     }
 
-    // React to filters changing
     radiusFilter.addEventListener('change', () => {
       if (currentActiveSpecies && cachedUserLocation && !showingFavorites) {
         showInlineLoading();
@@ -588,7 +589,6 @@
       }
     });
 
-    // React to Manual Location changing
     manualLocationSelect.addEventListener('change', () => {
       if (manualLocationSelect.value !== 'gps') {
         const coords = manualLocationSelect.value.split(',');
@@ -600,7 +600,7 @@
           renderFavorites();
         }
       } else {
-        cachedUserLocation = null; // Re-trigger GPS next time
+        cachedUserLocation = null; 
       }
     });
 
@@ -635,7 +635,6 @@
       btnElement.classList.add('active');
       showInlineLoading();
 
-      // Check if manual location is set
       if (manualLocationSelect.value !== 'gps') {
         const coords = manualLocationSelect.value.split(',');
         cachedUserLocation = { lat: parseFloat(coords[0]), lon: parseFloat(coords[1]) };
@@ -732,11 +731,11 @@
         // --- CUSTOM LEAFLET MARKERS & POPUPS ---
         const pinColorClass = isFavorited ? 'pin-yellow' : 'pin-blue';
         const customIcon = L.divIcon({
-          className: '', // Clear default leaflet styles
+          className: '',
           html: `<div class="custom-pin ${pinColorClass}"></div>`,
           iconSize: [24, 24],
-          iconAnchor: [12, 24], // Base of the pin
-          popupAnchor: [0, -26] // Above the pin
+          iconAnchor: [12, 24], 
+          popupAnchor: [0, -26] 
         });
 
         const popupHTML = `
@@ -750,7 +749,6 @@
         markersLayer.addLayer(marker);
         mapBounds.push([lake.lat, lake.lon]);
 
-        // --- HTML GENERATION ---
         let readableOtherSpecies = lake.species
           .filter(id => id !== filteredSpeciesId) 
           .map(id => fishSpecies.find(f => f.id === id))
