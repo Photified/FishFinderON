@@ -35,138 +35,62 @@
       top: 0;
       z-index: 10;
     }
-    .app-logo {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-    }
-    h1 { 
-      margin: 0; 
-      font-size: 1.4rem; 
-      color: #ffffff; 
-      font-weight: 700;
-      flex: 1;
-      text-align: center;
-    }
-    .settings-btn {
-      background: none;
-      border: none;
-      padding: 5px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .settings-btn svg {
-      width: 28px;
-      height: 28px;
-      fill: #ffffff;
-      transition: transform 0.2s ease;
-    }
-    .settings-btn:active svg {
-      transform: rotate(45deg);
-    }
+    .app-logo { width: 42px; height: 42px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    h1 { margin: 0; font-size: 1.4rem; color: #ffffff; font-weight: 700; flex: 1; text-align: center; }
+    .settings-btn { background: none; border: none; padding: 5px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .settings-btn svg { width: 28px; height: 28px; fill: #ffffff; transition: transform 0.2s ease; }
+    .settings-btn:active svg { transform: rotate(45deg); }
 
     /* --- CUSTOM SCROLLBAR CSS (UPDATED SPACING) --- */
     .slider-container {
-      display: flex; 
-      overflow-x: auto; 
-      padding: 25px 15px 20px 15px; /* Increased bottom padding so it doesn't hug the cards */
-      margin-bottom: 10px; /* Added margin so it doesn't touch the filter bar below */
-      gap: 15px;
-      scroll-snap-type: x mandatory; 
-      scrollbar-width: thin;
-      scrollbar-color: #475569 transparent;
+      display: flex; overflow-x: auto; padding: 25px 15px 20px 15px; 
+      margin-bottom: 10px; gap: 15px;
+      scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: #475569 transparent;
     }
-    
-    .slider-container::-webkit-scrollbar {
-      height: 6px;
-    }
-    .slider-container::-webkit-scrollbar-track {
-      background: transparent;
-      border-radius: 10px;
-      margin: 0 20px; 
-    }
-    .slider-container::-webkit-scrollbar-thumb {
-      background-color: #475569; 
-      border-radius: 10px;
-    }
-    .slider-container::-webkit-scrollbar-thumb:hover {
-      background-color: #64748b; 
-    }
+    .slider-container::-webkit-scrollbar { height: 6px; }
+    .slider-container::-webkit-scrollbar-track { background: transparent; border-radius: 10px; margin: 0 20px; }
+    .slider-container::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 10px; }
+    .slider-container::-webkit-scrollbar-thumb:hover { background-color: #64748b; }
     
     .fish-btn {
       flex: 0 0 auto; scroll-snap-align: start; 
       background-color: var(--card-bg); border: 2px solid transparent;
       border-radius: 12px; padding: 10px; width: 100px;
       display: flex; flex-direction: column; align-items: center;
-      cursor: pointer; transition: all 0.2s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .fish-btn img { width: 80px; height: 80px; object-fit: contain; margin-bottom: 8px; }
     .fish-btn span { font-size: 0.8rem; text-align: center; font-weight: 600; }
     .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.15); transform: scale(1.05); }
     
     .filter-bar {
-      padding: 0 20px 15px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-      border-bottom: 1px solid #333;
-      margin-bottom: 20px;
+      padding: 0 20px 15px; display: flex; align-items: center; justify-content: space-between;
+      color: var(--text-muted); font-size: 0.9rem; border-bottom: 1px solid #333; margin-bottom: 20px;
     }
     .filter-bar select {
-      background-color: var(--card-bg);
-      color: var(--text-main);
-      border: 1px solid #444;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: bold;
-      outline: none;
+      background-color: var(--card-bg); color: var(--text-main); border: 1px solid #444;
+      padding: 8px 12px; border-radius: 8px; font-size: 0.9rem; font-weight: bold; outline: none;
     }
 
     .fav-toggle-btn {
-      background: #1e293b;
-      color: #fbbf24;
-      border: 1px solid #444;
-      padding: 8px 12px;
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-weight: bold;
-      cursor: pointer;
-      transition: 0.2s;
+      background: #1e293b; color: #fbbf24; border: 1px solid #444; padding: 8px 12px;
+      border-radius: 8px; font-size: 0.85rem; font-weight: bold; cursor: pointer; transition: 0.2s;
     }
     .fav-toggle-btn.active { background: #fbbf24; color: #121212; }
 
     #map {
-      height: 250px; 
-      width: calc(100% - 40px); 
-      margin: 0 20px 20px; 
-      border-radius: 12px;
-      display: none; 
-      box-shadow: 0 4px 6px rgba(0,0,0,0.3); 
-      z-index: 1;
+      height: 250px; width: calc(100% - 40px); margin: 0 20px 20px; border-radius: 12px;
+      display: none; box-shadow: 0 4px 6px rgba(0,0,0,0.3); z-index: 1;
     }
 
-    .leaflet-popup-content-wrapper, .leaflet-popup-tip {
-      background-color: var(--card-bg) !important;
-      color: var(--text-main) !important;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important;
-    }
+    .leaflet-popup-content-wrapper, .leaflet-popup-tip { background-color: var(--card-bg) !important; color: var(--text-main) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.5) !important; }
     .leaflet-container a.leaflet-popup-close-button { color: var(--text-muted) !important; }
     .map-popup-title { font-weight: bold; font-size: 1.1rem; color: var(--accent); margin-bottom: 5px; }
     .map-popup-stat { font-size: 0.85rem; color: var(--text-main); margin-bottom: 2px; }
     
     .custom-pin {
-      width: 22px; height: 22px;
-      border-radius: 50% 50% 50% 0;
-      transform: rotate(-45deg);
-      border: 2px solid #fff;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+      width: 22px; height: 22px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
+      border: 2px solid #fff; box-shadow: 1px 1px 4px rgba(0,0,0,0.5);
     }
     .pin-blue { background-color: #2563eb; }
     .pin-yellow { background-color: #fbbf24; z-index: 1000 !important; }
@@ -174,23 +98,13 @@
     #results { padding: 0 20px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
 
-    .inline-loading {
-      text-align: center;
-      padding: 40px 20px;
-    }
+    .inline-loading { text-align: center; padding: 40px 20px; }
     .loading-logo {
-      width: 75px; height: 75px; border-radius: 18px;
-      animation: pulseFade 1.2s ease-in-out infinite alternate;
+      width: 75px; height: 75px; border-radius: 18px; animation: pulseFade 1.2s ease-in-out infinite alternate;
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
     }
-    @keyframes pulseFade {
-      0% { opacity: 0.3; transform: scale(0.95); }
-      100% { opacity: 1; transform: scale(1.05); }
-    }
-    .loading-text {
-      color: var(--accent); font-weight: bold; margin-top: 25px;
-      font-size: 1.1rem; margin-bottom: 5px;
-    }
+    @keyframes pulseFade { 0% { opacity: 0.3; transform: scale(0.95); } 100% { opacity: 1; transform: scale(1.05); } }
+    .loading-text { color: var(--accent); font-weight: bold; margin-top: 25px; font-size: 1.1rem; margin-bottom: 5px; }
     .loading-subtext { color: var(--text-muted); font-size: 0.85rem; margin: 0 auto; max-width: 250px; line-height: 1.4; }
     
     .lake-card {
@@ -265,16 +179,15 @@
     }
     .note-btn:active { transform: scale(0.95); }
 
-    /* Modals */
+    /* Modals & Accordion */
     .modal-overlay {
       display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); 
-      z-index: 100; justify-content: center; align-items: center; padding: 20px;
-      backdrop-filter: blur(4px);
+      z-index: 100; justify-content: center; align-items: center; padding: 20px; backdrop-filter: blur(4px);
     }
     .modal-overlay.open { display: flex; }
     .modal-content {
       background: var(--card-bg); width: 100%; max-width: 350px; 
-      border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto;
     }
     .modal-content h2 { margin: 0 0 15px; color: var(--accent); font-size: 1.4rem; }
     .modal-content p { color: var(--text-main); font-size: 0.95rem; line-height: 1.5; margin-bottom: 20px; }
@@ -286,6 +199,22 @@
       width: 100%; background: var(--bg-color); color: white; border: 1px solid #444; 
       padding: 10px; border-radius: 8px; font-size: 0.95rem; outline: none;
     }
+
+    /* Accordion Styles */
+    .accordion-btn {
+      background-color: rgba(255,255,255,0.05); color: var(--accent); cursor: pointer; padding: 15px; width: 100%; 
+      border: none; text-align: left; outline: none; font-size: 1rem; font-weight: bold; border-radius: 10px; 
+      transition: 0.2s; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+    }
+    .accordion-btn:hover { background-color: rgba(255,255,255,0.1); }
+    .accordion-btn.active { border-radius: 10px 10px 0 0; margin-bottom: 0; }
+    .accordion-btn::after { content: '\002B'; font-size: 1.2rem; }
+    .accordion-btn.active::after { content: '\2212'; }
+    .accordion-content {
+      padding: 0 15px; background-color: rgba(255,255,255,0.02); max-height: 0; overflow: hidden; 
+      transition: max-height 0.2s ease-out; border-radius: 0 0 10px 10px; margin-bottom: 15px;
+    }
+    .accordion-content.open { max-height: 400px; padding: 15px; }
 
     .custom-textarea {
       width: 100%; height: 100px; background: var(--bg-color); color: white; border: 1px solid #444; 
@@ -327,14 +256,14 @@
   <div class="filter-bar">
     <button id="viewFavoritesBtn" class="fav-toggle-btn">⭐ Saved Lakes</button>
     <div>
-      <label for="radiusFilter">Search Radius:</label>
+      <label for="radiusFilter">Search Radius (<span id="radiusUnitLabel">km</span>):</label>
       <select id="radiusFilter">
-        <option value="25">25 km</option>
-        <option value="50" selected>50 km</option>
-        <option value="100">100 km</option>
-        <option value="250">250 km</option>
-        <option value="500">500 km</option>
-        <option value="99999">Anywhere</option>
+        <option value="25">25</option>
+        <option value="50" selected>50</option>
+        <option value="100">100</option>
+        <option value="250">250</option>
+        <option value="500">500</option>
+        <option value="99999">Any</option>
       </select>
     </div>
   </div>
@@ -348,6 +277,31 @@
   <div class="modal-overlay" id="settingsModal">
     <div class="modal-content">
       <h2>Settings & Info</h2>
+
+      <button class="accordion-btn" id="unitsAccordionBtn">Measurement Units</button>
+      <div class="accordion-content" id="unitsAccordionContent">
+        <div class="settings-group" style="margin-bottom: 10px; background: none; padding: 0;">
+          <label for="distanceUnit">Distance</label>
+          <select id="distanceUnit" class="unit-select">
+            <option value="metric">Kilometers (km)</option>
+            <option value="imperial">Miles (mi)</option>
+          </select>
+        </div>
+        <div class="settings-group" style="margin-bottom: 10px; background: none; padding: 0;">
+          <label for="depthUnit">Depth</label>
+          <select id="depthUnit" class="unit-select">
+            <option value="metric">Meters (m)</option>
+            <option value="imperial">Feet (ft)</option>
+          </select>
+        </div>
+        <div class="settings-group" style="margin-bottom: 0; background: none; padding: 0;">
+          <label for="areaUnit">Area</label>
+          <select id="areaUnit" class="unit-select">
+            <option value="metric">Hectares (ha)</option>
+            <option value="imperial">Acres (ac)</option>
+          </select>
+        </div>
+      </div>
 
       <div class="settings-group">
         <label for="manualLocation">Starting Location</label>
@@ -425,6 +379,31 @@
     document.getElementById('closeSettingsBtn').addEventListener('click', () => settingsModal.classList.remove('open'));
     settingsModal.addEventListener('click', (e) => { if (e.target === settingsModal) settingsModal.classList.remove('open'); });
 
+    // --- UNIT STATE & ACCORDION ---
+    const defaultUnits = { distance: 'metric', depth: 'imperial', area: 'metric' };
+    let appUnits = JSON.parse(localStorage.getItem('appUnitsData')) || defaultUnits;
+    
+    document.getElementById('distanceUnit').value = appUnits.distance;
+    document.getElementById('depthUnit').value = appUnits.depth;
+    document.getElementById('areaUnit').value = appUnits.area;
+    document.getElementById('radiusUnitLabel').innerText = appUnits.distance === 'metric' ? 'km' : 'mi';
+
+    document.getElementById('unitsAccordionBtn').addEventListener('click', function() {
+      this.classList.toggle('active');
+      document.getElementById('unitsAccordionContent').classList.toggle('open');
+    });
+
+    document.querySelectorAll('.unit-select').forEach(select => {
+      select.addEventListener('change', (e) => {
+        appUnits[e.target.id.replace('Unit', '')] = e.target.value;
+        localStorage.setItem('appUnitsData', JSON.stringify(appUnits));
+        if(e.target.id === 'distanceUnit') {
+          document.getElementById('radiusUnitLabel').innerText = appUnits.distance === 'metric' ? 'km' : 'mi';
+        }
+        triggerReRender();
+      });
+    });
+
     // --- NOTES MODAL LOGIC ---
     const noteModal = document.getElementById('noteModal');
     const noteInput = document.getElementById('noteInput');
@@ -439,7 +418,6 @@
       if (pendingNoteLakeId) {
         const newNote = noteInput.value.trim();
         if (!savedLakes[pendingNoteLakeId]) savedLakes[pendingNoteLakeId] = {};
-        
         savedLakes[pendingNoteLakeId].note = newNote;
         localStorage.setItem('savedLakesData', JSON.stringify(savedLakes));
         triggerReRender();
@@ -450,9 +428,7 @@
 
     // --- INITIALIZE MAP ---
     let map = L.map('map').setView([46.0, -80.0], 5);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { 
-      maxZoom: 18, attribution: '© OpenStreetMap' 
-    }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
     let markersLayer = L.layerGroup().addTo(map);
 
     // --- INITIALIZE FAVORITES DATA ---
@@ -651,19 +627,22 @@
       const maxRadius = parseInt(radiusFilter.value);
 
       if (maxRadius !== 99999) {
-        const latOffset = maxRadius / 111.0;
-        const lonOffset = maxRadius / (111.0 * Math.cos(userLat * Math.PI / 180));
+        const radiusInKm = appUnits.distance === 'metric' ? maxRadius : maxRadius * 1.60934;
+        const latOffset = radiusInKm / 111.0;
+        const lonOffset = radiusInKm / (111.0 * Math.cos(userLat * Math.PI / 180));
         matchingLakes = matchingLakes.filter(lake => Math.abs(lake.lat - userLat) <= latOffset && Math.abs(lake.lon - userLon) <= lonOffset);
       }
 
       let finalLakes = [];
       matchingLakes.forEach(lake => {
         lake.distance = calculateDistance(userLat, userLon, lake.lat, lake.lon);
-        if (lake.distance <= maxRadius) finalLakes.push(lake);
+        const radiusCheck = appUnits.distance === 'metric' ? maxRadius : maxRadius * 1.60934;
+        if (lake.distance <= radiusCheck) finalLakes.push(lake);
       });
 
       if (finalLakes.length === 0) {
-        resultsContainer.innerHTML = `<p class="status-msg">No lakes found within ${maxRadius === 99999 ? 'Ontario' : maxRadius + ' km'}. Try expanding your search radius!</p>`; return;
+        const unitStr = appUnits.distance === 'metric' ? 'km' : 'mi';
+        resultsContainer.innerHTML = `<p class="status-msg">No lakes found within ${maxRadius === 99999 ? 'Ontario' : maxRadius + ' ' + unitStr}. Try expanding your search radius!</p>`; return;
       }
 
       finalLakes.sort((a, b) => a.distance - b.distance);
@@ -688,24 +667,29 @@
         const uniqueId = getLakeId(lake);
         const isFavorited = !!savedLakes[uniqueId];
         const starActiveClass = isFavorited ? 'active' : '';
-        const distanceText = lake.distance !== undefined ? `<div class="distance-badge">${lake.distance.toFixed(1)} km</div>` : '';
         const customNote = isFavorited && savedLakes[uniqueId].note ? savedLakes[uniqueId].note : '';
+
+        // --- UNIT CONVERSIONS ---
+        let displayDistance = lake.distance !== undefined ? (appUnits.distance === 'metric' ? lake.distance.toFixed(1) + ' km' : (lake.distance * 0.621371).toFixed(1) + ' mi') : '';
+        let distanceText = displayDistance ? `<div class="distance-badge">${displayDistance}</div>` : '';
+        
+        let depthVal = lake.maxDepth ? (appUnits.depth === 'metric' ? parseFloat(lake.maxDepth) : parseFloat(lake.maxDepth) * 3.28084).toFixed(1).replace(/\.0$/, '') : null;
+        let depthStr = depthVal ? `${depthVal}${appUnits.depth === 'metric' ? 'm' : 'ft'}` : '';
+
+        let areaVal = lake.surfaceArea ? (appUnits.area === 'metric' ? parseFloat(lake.surfaceArea) : parseFloat(lake.surfaceArea) * 2.47105) : null;
+        let areaStr = areaVal ? `${areaVal > 100 ? Math.round(areaVal) : areaVal.toFixed(1).replace(/\.0$/, '')} ${appUnits.area === 'metric' ? 'ha' : 'ac'}` : '';
 
         // --- CUSTOM LEAFLET MARKERS & POPUPS ---
         const pinColorClass = isFavorited ? 'pin-yellow' : 'pin-blue';
         const customIcon = L.divIcon({
-          className: '',
-          html: `<div class="custom-pin ${pinColorClass}"></div>`,
-          iconSize: [24, 24],
-          iconAnchor: [12, 24], 
-          popupAnchor: [0, -26] 
+          className: '', html: `<div class="custom-pin ${pinColorClass}"></div>`, iconSize: [24, 24], iconAnchor: [12, 24], popupAnchor: [0, -26] 
         });
 
         const popupHTML = `
           <div class="map-popup-title">${lake.name}</div>
           ${lake.fmz ? `<div class="map-popup-stat">📍 Zone ${lake.fmz}</div>` : ''}
-          ${lake.distance ? `<div class="map-popup-stat">🚗 ${lake.distance.toFixed(1)} km away</div>` : ''}
-          ${lake.maxDepth ? `<div class="map-popup-stat">⚓ Max Depth: ${parseFloat(lake.maxDepth).toFixed(1)}m</div>` : ''}
+          ${displayDistance ? `<div class="map-popup-stat">🚗 ${displayDistance} away</div>` : ''}
+          ${depthStr ? `<div class="map-popup-stat">⚓ Max Depth: ${depthStr}</div>` : ''}
         `;
 
         const marker = L.marker([lake.lat, lake.lon], { icon: customIcon }).bindPopup(popupHTML);
@@ -736,11 +720,8 @@
           let type = lake.waterbodyType.includes('Stream') ? 'River' : 'Lake';
           statsArray.push(`<span class="stat-item">${type === 'River' ? '💧' : '🌊'} ${type}</span>`);
         }
-        if (lake.maxDepth) statsArray.push(`<span class="stat-item">⚓ ${parseFloat(lake.maxDepth).toFixed(1).replace(/\.0$/, '')}m deep</span>`);
-        if (lake.surfaceArea) {
-          let areaNum = parseFloat(lake.surfaceArea);
-          statsArray.push(`<span class="stat-item">🗺️ ${areaNum > 100 ? Math.round(areaNum) : areaNum.toFixed(1).replace(/\.0$/, '')} ha</span>`);
-        }
+        if (depthStr) statsArray.push(`<span class="stat-item">⚓ ${depthStr} deep</span>`);
+        if (areaStr) statsArray.push(`<span class="stat-item">🗺️ ${areaStr}</span>`);
         if (lake.secchiDepth) statsArray.push(`<span class="stat-item">🕶️ ${parseFloat(lake.secchiDepth).toFixed(1).replace(/\.0$/, '')}m clear</span>`);
         if (statsArray.length > 0) statsTextHTML = `<div class="lake-stats-grid">${statsArray.join('')}</div>`;
 
