@@ -67,47 +67,36 @@
     .settings-btn:active svg {
       transform: rotate(45deg);
     }
-    
-    /* UPDATED: Wrapper is now a standard flexbox that bounds the arrows */
-    .slider-wrapper {
-      display: flex;
-      align-items: center;
-      padding: 0 10px;
-      background-color: var(--bg-color);
-    }
-    
-    /* UPDATED: Arrows take up their own space and don't float over content */
-    .slider-arrow {
-      flex-shrink: 0;
-      z-index: 5;
-      background: rgba(14, 165, 233, 0.85); 
-      color: white;
-      border: none;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 1.2rem;
-      transition: opacity 0.3s ease, transform 0.2s;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.4);
-    }
-    .slider-arrow:active { transform: scale(0.9); }
-    
-    #scrollLeftBtn { opacity: 0; pointer-events: none; margin-right: 5px; }
-    #scrollRightBtn { margin-left: 5px; }
 
-    /* UPDATED: Container flexes to fill middle and has less padding */
+    /* --- CUSTOM SCROLLBAR CSS --- */
     .slider-container {
-      flex: 1;
-      display: flex; overflow-x: auto; padding: 25px 5px 15px 5px; gap: 15px;
-      scroll-snap-type: x mandatory; scrollbar-width: none;
+      display: flex; 
+      overflow-x: auto; 
+      padding: 25px 15px 15px 15px; 
+      gap: 15px;
+      scroll-snap-type: x mandatory; 
+      /* Firefox support */
+      scrollbar-width: thin;
+      scrollbar-color: #475569 transparent;
     }
-    .slider-container::-webkit-scrollbar { display: none; }
     
-    /* UPDATED: Snap alignment set to start */
+    /* Chrome, Edge, and Safari support */
+    .slider-container::-webkit-scrollbar {
+      height: 6px;
+    }
+    .slider-container::-webkit-scrollbar-track {
+      background: transparent;
+      border-radius: 10px;
+      margin: 0 15px; /* Keeps the scrollbar from hitting the exact edge of the screen */
+    }
+    .slider-container::-webkit-scrollbar-thumb {
+      background-color: #475569; /* Nice visible grey */
+      border-radius: 10px;
+    }
+    .slider-container::-webkit-scrollbar-thumb:hover {
+      background-color: #64748b; /* Slightly lighter when tapped/hovered */
+    }
+    
     .fish-btn {
       flex: 0 0 auto; scroll-snap-align: start; 
       background-color: var(--card-bg); border: 2px solid transparent;
@@ -335,11 +324,7 @@
     </button>
   </header>
 
-  <div class="slider-wrapper">
-    <button id="scrollLeftBtn" class="slider-arrow" aria-label="Scroll Left">❮</button>
-    <div class="slider-container" id="fishSlider"></div>
-    <button id="scrollRightBtn" class="slider-arrow" aria-label="Scroll Right">❯</button>
-  </div>
+  <div class="slider-container" id="fishSlider"></div>
 
   <div class="filter-bar">
     <button id="viewFavoritesBtn" class="fav-toggle-btn">⭐ Saved Lakes</button>
@@ -522,25 +507,6 @@
     const viewFavoritesBtn = document.getElementById('viewFavoritesBtn');
     const manualLocationSelect = document.getElementById('manualLocation');
     
-    // --- SLIDER ARROW LOGIC ---
-    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
-    const scrollRightBtn = document.getElementById('scrollRightBtn');
-    scrollLeftBtn.addEventListener('click', () => sliderContainer.scrollBy({ left: -200, behavior: 'smooth' }));
-    scrollRightBtn.addEventListener('click', () => sliderContainer.scrollBy({ left: 200, behavior: 'smooth' }));
-
-    sliderContainer.addEventListener('scroll', () => {
-      if (sliderContainer.scrollLeft <= 5) {
-        scrollLeftBtn.style.opacity = '0'; scrollLeftBtn.style.pointerEvents = 'none';
-      } else {
-        scrollLeftBtn.style.opacity = '1'; scrollLeftBtn.style.pointerEvents = 'auto';
-      }
-      if (sliderContainer.scrollLeft >= (sliderContainer.scrollWidth - sliderContainer.clientWidth - 5)) {
-        scrollRightBtn.style.opacity = '0'; scrollRightBtn.style.pointerEvents = 'none';
-      } else {
-        scrollRightBtn.style.opacity = '1'; scrollRightBtn.style.pointerEvents = 'auto';
-      }
-    });
-    
     let cachedUserLocation = null;
     let currentActiveSpecies = null;
     let showingFavorites = false;
@@ -551,7 +517,6 @@
         if (!response.ok) throw new Error("JSON not found");
         lakesData = await response.json();
         buildSlider();
-        sliderContainer.dispatchEvent(new Event('scroll'));
       } catch (error) {
         resultsContainer.innerHTML = '<p class="status-msg">Error: Missing lakesData.json file.</p>';
       }
