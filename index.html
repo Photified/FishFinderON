@@ -123,7 +123,7 @@
     }
     .pin-blue { background-color: #2563eb; }
     .pin-yellow { background-color: #fbbf24; z-index: 1000 !important; }
-    .pin-user { background-color: #ef4444; z-index: 1001 !important; border-color: #fff; } /* New user pin */
+    .pin-user { background-color: #ef4444; z-index: 1001 !important; border-color: #fff; }
 
     #results { padding: 0 20px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
@@ -531,7 +531,7 @@
     let cachedUserLocation = null;
     let currentActiveSpecies = null;
     let showingFavorites = false;
-    let currentSearchTerm = null; // NEW: Track manual name searches
+    let currentSearchTerm = null;
 
     async function loadLakeData() {
       try {
@@ -568,13 +568,30 @@
       `;
     }
 
-    // --- NEW LAKE SEARCH LOGIC ---
+    // --- NEW LAKE SEARCH LOGIC WITH DEBOUNCE ---
     const lakeSearchInput = document.getElementById('lakeSearchInput');
     const lakeSearchBtn = document.getElementById('lakeSearchBtn');
+    let searchTimeout = null;
 
     lakeSearchBtn.addEventListener('click', executeLakeSearch);
+    
     lakeSearchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') executeLakeSearch();
+      if (e.key === 'Enter') {
+        clearTimeout(searchTimeout);
+        executeLakeSearch();
+      }
+    });
+
+    lakeSearchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const term = e.target.value.trim();
+      
+      // Auto-search if they typed 3 or more letters
+      if (term.length >= 3) {
+        searchTimeout = setTimeout(() => {
+          executeLakeSearch();
+        }, 400); // 400ms debounce
+      }
     });
 
     function executeLakeSearch() {
@@ -582,8 +599,11 @@
       if (!term) return;
 
       currentSearchTerm = term;
-      currentActiveSpecies = null; // Clear fish selection
+      currentActiveSpecies = null; 
       showingFavorites = false;
+      
+      // Force the radius filter to 'Any' for manual searches
+      radiusFilter.value = "99999";
       
       viewFavoritesBtn.classList.remove('active');
       document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
@@ -603,7 +623,7 @@
       }
 
       if (!navigator.geolocation) {
-        setTimeout(() => processLakeSearch(), 50); // proceed without location
+        setTimeout(() => processLakeSearch(), 50); 
         return;
       }
 
@@ -613,7 +633,7 @@
           processLakeSearch();
         },
         (error) => { 
-          processLakeSearch(); // proceed without location
+          processLakeSearch(); 
         },
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
       );
@@ -628,16 +648,8 @@
         return;
       }
 
-      // Apply radius filter if location is known
+      // Since we forced radiusFilter to 99999 above, it will naturally bypass distance filtering.
       const maxRadius = parseInt(radiusFilter.value);
-      if (cachedUserLocation && maxRadius !== 99999) {
-        const radiusInKm = appUnits.distance === 'metric' ? maxRadius : maxRadius * 1.60934;
-        const latOffset = radiusInKm / 111.0;
-        const lonOffset = radiusInKm / (111.0 * Math.cos(cachedUserLocation.lat * Math.PI / 180));
-        matches = matches.filter(lake => {
-          return Math.abs(lake.lat - cachedUserLocation.lat) <= latOffset && Math.abs(lake.lon - cachedUserLocation.lon) <= lonOffset;
-        });
-      }
 
       if (cachedUserLocation) {
         matches.forEach(lake => {
@@ -648,14 +660,7 @@
         matches.sort((a, b) => a.name.localeCompare(b.name));
       }
 
-      if (matches.length === 0) {
-        const unitStr = appUnits.distance === 'metric' ? 'km' : 'mi';
-        resultsContainer.innerHTML = `<p class="status-msg">No matching lakes found within ${maxRadius} ${unitStr}. Try expanding your search radius!</p>`;
-        document.getElementById('map').style.display = 'none';
-        return;
-      }
-
-      // Limit results so the map doesn't freeze on huge searches like "Lake"
+      // Limit results so the app doesn't freeze on huge searches like "Lake"
       renderLakeList(matches.slice(0, 50), '', null);
     }
 
