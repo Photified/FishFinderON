@@ -70,10 +70,10 @@
     }
     .search-container button:active { transform: scale(0.95); }
 
-    /* --- SLIDER CSS (NOW PILL SHAPED) --- */
+    /* --- SLIDER CSS (VERTICAL PILL SHAPE) --- */
     .slider-container {
       display: flex; overflow-x: auto; padding: 15px 15px 15px 15px; 
-      margin-bottom: 5px; gap: 10px;
+      margin-bottom: 5px; gap: 12px;
       scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: #475569 transparent;
     }
     .slider-container::-webkit-scrollbar { height: 6px; }
@@ -84,12 +84,12 @@
     .fish-btn {
       flex: 0 0 auto; scroll-snap-align: start; 
       background-color: var(--card-bg); border: 2px solid transparent;
-      border-radius: 25px; padding: 6px 14px; width: auto;
-      display: flex; flex-direction: row; align-items: center; gap: 8px;
+      border-radius: 24px; padding: 12px 10px; width: 85px;
+      display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 6px;
       cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
-    .fish-btn img { width: 28px; height: 28px; object-fit: contain; margin-bottom: 0; }
-    .fish-btn span { font-size: 0.85rem; text-align: left; font-weight: 600; white-space: nowrap; }
+    .fish-btn img { width: 55px; height: 55px; object-fit: contain; margin-bottom: 0; border-radius: 8px; }
+    .fish-btn span { font-size: 0.75rem; text-align: center; font-weight: 600; line-height: 1.2; word-wrap: break-word; }
     .fish-btn.active { border-color: var(--accent); background-color: rgba(14, 165, 233, 0.15); transform: scale(1.05); }
     
     .filter-bar {
@@ -410,7 +410,8 @@
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error.', err));
+        navigator.serviceWorker.register('./sw.js')
+          .catch(err => console.error('SW Error.', err));
       });
     }
 
@@ -526,6 +527,7 @@
     });
 
     const fishSpecies = [
+      { id: 'all', name: 'All Fish' },
       { id: 'smallmouthbass', name: 'Smallmouth Bass' }, { id: 'largemouthbass', name: 'Largemouth Bass' },
       { id: 'walleye', name: 'Walleye' }, { id: 'perch', name: 'Perch' }, { id: 'pike', name: 'Pike' },
       { id: 'muskie', name: 'Muskie' }, { id: 'laketrout', name: 'Lake Trout' }, { id: 'brooktrout', name: 'Brook Trout' },
@@ -565,7 +567,8 @@
         const btn = document.createElement('div');
         btn.className = 'fish-btn';
         btn.dataset.id = fish.id;
-        btn.innerHTML = `<img src="images/${fish.id}.png" alt="${fish.name}"><span>${fish.name}</span>`;
+        const imgSrc = fish.id === 'all' ? 'images/icon.png' : `images/${fish.id}.png`;
+        btn.innerHTML = `<img src="${imgSrc}" alt="${fish.name}"><span>${fish.name}</span>`;
         btn.addEventListener('click', () => {
           showingFavorites = false;
           viewFavoritesBtn.classList.remove('active');
@@ -602,11 +605,10 @@
       clearTimeout(searchTimeout);
       const term = e.target.value.trim();
       
-      // Auto-search if they typed 3 or more letters
       if (term.length >= 3) {
         searchTimeout = setTimeout(() => {
           executeLakeSearch();
-        }, 400); // 400ms debounce
+        }, 400); 
       }
     });
 
@@ -618,7 +620,6 @@
       currentActiveSpecies = null; 
       showingFavorites = false;
       
-      // Force the radius filter to 'Any' for manual searches
       radiusFilter.value = "99999";
       
       viewFavoritesBtn.classList.remove('active');
@@ -664,7 +665,6 @@
         return;
       }
 
-      // Since we forced radiusFilter to 99999 above, it will naturally bypass distance filtering.
       const maxRadius = parseInt(radiusFilter.value);
 
       if (cachedUserLocation) {
@@ -676,11 +676,9 @@
         matches.sort((a, b) => a.name.localeCompare(b.name));
       }
 
-      // Limit results so the app doesn't freeze on huge searches like "Lake"
       renderLakeList(matches.slice(0, 50), '', null);
     }
 
-    // --- RE-RENDER LOGIC & FILTERS ---
     radiusFilter.addEventListener('change', () => {
       if (currentSearchTerm) {
         showInlineLoading();
@@ -790,7 +788,13 @@
     }
 
     function findClosestLakes(speciesId, userLat, userLon) {
-      let matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
+      let matchingLakes;
+      
+      if (speciesId === 'all') {
+        matchingLakes = lakesData.filter(lake => lake.species && lake.species.length > 0);
+      } else {
+        matchingLakes = lakesData.filter(lake => lake.species && lake.species.includes(speciesId));
+      }
 
       if (matchingLakes.length === 0) {
         resultsContainer.innerHTML = `<p class="status-msg">No lakes found with this species.</p>`; return;
@@ -826,8 +830,14 @@
       if (maxRadius === 99999) resultLimit = 100;
       
       const topLakes = finalLakes.slice(0, resultLimit); 
+      
       const searchedFishObj = fishSpecies.find(f => f.id === speciesId);
-      renderLakeList(topLakes, searchedFishObj ? searchedFishObj.name.toLowerCase() : '', speciesId);
+      let searchNameForStocking = '';
+      if (searchedFishObj && speciesId !== 'all') {
+        searchNameForStocking = searchedFishObj.name.toLowerCase();
+      }
+      
+      renderLakeList(topLakes, searchNameForStocking, speciesId);
     }
 
     function renderLakeList(lakesArray, searchedFishName, filteredSpeciesId = null) {
@@ -910,7 +920,13 @@
         if (lake.secchiDepth) statsArray.push(`<span class="stat-item">🕶️ ${parseFloat(lake.secchiDepth).toFixed(1).replace(/\.0$/, '')}m clear</span>`);
         if (statsArray.length > 0) statsTextHTML = `<div class="lake-stats-grid">${statsArray.join('')}</div>`;
 
-        // The new condensed layout structure
+        let speciesDisplay = '';
+        if (filteredSpeciesId === 'all' || !filteredSpeciesId) {
+          speciesDisplay = readableOtherSpecies ? 'Species: ' + readableOtherSpecies : 'Unknown species';
+        } else {
+          speciesDisplay = readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species';
+        }
+
         resultsContainer.innerHTML += `
           <div class="lake-card${stockedClass}">
             <div class="lake-header">
@@ -930,7 +946,7 @@
             
             <div class="lake-info-expanded">
               ${statsTextHTML}
-              <p class="species-list">${readableOtherSpecies ? 'Also has: ' + readableOtherSpecies : 'Just this species'}</p>
+              <p class="species-list">${speciesDisplay}</p>
               ${stockingContentHTML}
               
               <div class="note-section ${isFavorited ? 'visible' : ''}">
