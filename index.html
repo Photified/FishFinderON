@@ -41,9 +41,38 @@
     .settings-btn svg { width: 28px; height: 28px; fill: #ffffff; transition: transform 0.2s ease; }
     .settings-btn:active svg { transform: rotate(45deg); }
 
-    /* --- CUSTOM SCROLLBAR CSS (UPDATED SPACING) --- */
+    /* --- NEW LAKE SEARCH BAR CSS --- */
+    .search-container {
+      display: flex;
+      padding: 20px 20px 0;
+      gap: 10px;
+    }
+    .search-container input {
+      flex: 1;
+      background-color: var(--card-bg);
+      color: var(--text-main);
+      border: 1px solid #444;
+      padding: 12px 15px;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+    }
+    .search-container input:focus { border-color: var(--accent); }
+    .search-container button {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 0 15px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    .search-container button:active { transform: scale(0.95); }
+
+    /* --- CUSTOM SCROLLBAR CSS --- */
     .slider-container {
-      display: flex; overflow-x: auto; padding: 25px 15px 20px 15px; 
+      display: flex; overflow-x: auto; padding: 20px 15px 20px 15px; 
       margin-bottom: 10px; gap: 15px;
       scroll-snap-type: x mandatory; scrollbar-width: thin; scrollbar-color: #475569 transparent;
     }
@@ -94,6 +123,7 @@
     }
     .pin-blue { background-color: #2563eb; }
     .pin-yellow { background-color: #fbbf24; z-index: 1000 !important; }
+    .pin-user { background-color: #ef4444; z-index: 1001 !important; border-color: #fff; } /* New user pin */
 
     #results { padding: 0 20px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; }
@@ -251,6 +281,11 @@
     </button>
   </header>
 
+  <div class="search-container">
+    <input type="text" id="lakeSearchInput" placeholder="Search for a lake by name...">
+    <button id="lakeSearchBtn" aria-label="Search">🔍</button>
+  </div>
+
   <div class="slider-container" id="fishSlider"></div>
 
   <div class="filter-bar">
@@ -271,7 +306,7 @@
   <div id="map"></div>
 
   <div id="results">
-    <p class="status-msg">Tap a fish above to find nearby lakes.</p>
+    <p class="status-msg">Tap a fish above or search by name to find lakes.</p>
   </div>
 
   <div class="modal-overlay" id="settingsModal">
@@ -307,14 +342,23 @@
         <label for="manualLocation">Starting Location</label>
         <select id="manualLocation">
           <option value="gps">Use My Device GPS</option>
-          <option value="43.6532,-79.3832">Toronto</option>
-          <option value="45.4215,-75.6972">Ottawa</option>
-          <option value="46.4917,-80.9930">Sudbury</option>
-          <option value="43.4516,-80.4925">Kitchener</option>
           <option value="44.3894,-79.6903">Barrie</option>
-          <option value="48.3809,-89.2477">Thunder Bay</option>
+          <option value="44.1628,-77.3832">Belleville</option>
+          <option value="43.2561,-79.8711">Hamilton</option>
           <option value="49.7692,-94.4895">Kenora</option>
+          <option value="44.2312,-76.4860">Kingston</option>
+          <option value="43.4516,-80.4925">Kitchener</option>
+          <option value="42.9849,-81.2453">London</option>
+          <option value="46.3091,-79.4608">North Bay</option>
+          <option value="45.4215,-75.6972">Ottawa</option>
+          <option value="44.3091,-78.3197">Peterborough</option>
+          <option value="42.9745,-82.4066">Sarnia</option>
           <option value="46.5136,-84.3396">Sault Ste. Marie</option>
+          <option value="46.4917,-80.9930">Sudbury</option>
+          <option value="48.3809,-89.2477">Thunder Bay</option>
+          <option value="48.4758,-81.3305">Timmins</option>
+          <option value="43.6532,-79.3832">Toronto</option>
+          <option value="42.3149,-83.0364">Windsor</option>
         </select>
         <p class="sub-text" style="margin-top: 8px; margin-bottom: 0;">Overrides your phone's GPS for searching.</p>
       </div>
@@ -352,7 +396,10 @@
 
   <script>
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(err => console.error('SW Error.', err)));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js')
+          .catch(err => console.error('SW Error.', err));
+      });
     }
 
     let deferredPrompt;
@@ -484,6 +531,7 @@
     let cachedUserLocation = null;
     let currentActiveSpecies = null;
     let showingFavorites = false;
+    let currentSearchTerm = null; // NEW: Track manual name searches
 
     async function loadLakeData() {
       try {
@@ -516,13 +564,107 @@
         <div class="inline-loading">
           <img src="images/icon.png" alt="Loading" class="loading-logo">
           <p class="loading-text">Finding best spots...</p>
-          <p class="loading-subtext">Adjust the search radius above if it takes too long.</p>
         </div>
       `;
     }
 
+    // --- NEW LAKE SEARCH LOGIC ---
+    const lakeSearchInput = document.getElementById('lakeSearchInput');
+    const lakeSearchBtn = document.getElementById('lakeSearchBtn');
+
+    lakeSearchBtn.addEventListener('click', executeLakeSearch);
+    lakeSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') executeLakeSearch();
+    });
+
+    function executeLakeSearch() {
+      const term = lakeSearchInput.value.trim();
+      if (!term) return;
+
+      currentSearchTerm = term;
+      currentActiveSpecies = null; // Clear fish selection
+      showingFavorites = false;
+      
+      viewFavoritesBtn.classList.remove('active');
+      document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
+
+      showInlineLoading();
+
+      if (manualLocationSelect.value !== 'gps') {
+        const coords = manualLocationSelect.value.split(',');
+        cachedUserLocation = { lat: parseFloat(coords[0]), lon: parseFloat(coords[1]) };
+        setTimeout(() => processLakeSearch(), 50);
+        return;
+      }
+
+      if (cachedUserLocation) {
+        setTimeout(() => processLakeSearch(), 50);
+        return;
+      }
+
+      if (!navigator.geolocation) {
+        setTimeout(() => processLakeSearch(), 50); // proceed without location
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          cachedUserLocation = { lat: position.coords.latitude, lon: position.coords.longitude };
+          processLakeSearch();
+        },
+        (error) => { 
+          processLakeSearch(); // proceed without location
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
+    }
+
+    function processLakeSearch() {
+      let matches = lakesData.filter(lake => lake.name.toLowerCase().includes(currentSearchTerm.toLowerCase()));
+      
+      if (matches.length === 0) {
+        resultsContainer.innerHTML = `<p class="status-msg">No lakes found matching "${currentSearchTerm}".</p>`;
+        document.getElementById('map').style.display = 'none';
+        return;
+      }
+
+      // Apply radius filter if location is known
+      const maxRadius = parseInt(radiusFilter.value);
+      if (cachedUserLocation && maxRadius !== 99999) {
+        const radiusInKm = appUnits.distance === 'metric' ? maxRadius : maxRadius * 1.60934;
+        const latOffset = radiusInKm / 111.0;
+        const lonOffset = radiusInKm / (111.0 * Math.cos(cachedUserLocation.lat * Math.PI / 180));
+        matches = matches.filter(lake => {
+          return Math.abs(lake.lat - cachedUserLocation.lat) <= latOffset && Math.abs(lake.lon - cachedUserLocation.lon) <= lonOffset;
+        });
+      }
+
+      if (cachedUserLocation) {
+        matches.forEach(lake => {
+          lake.distance = calculateDistance(cachedUserLocation.lat, cachedUserLocation.lon, lake.lat, lake.lon);
+        });
+        matches.sort((a, b) => a.distance - b.distance);
+      } else {
+        matches.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      if (matches.length === 0) {
+        const unitStr = appUnits.distance === 'metric' ? 'km' : 'mi';
+        resultsContainer.innerHTML = `<p class="status-msg">No matching lakes found within ${maxRadius} ${unitStr}. Try expanding your search radius!</p>`;
+        document.getElementById('map').style.display = 'none';
+        return;
+      }
+
+      // Limit results so the map doesn't freeze on huge searches like "Lake"
+      renderLakeList(matches.slice(0, 50), '', null);
+    }
+
+    // --- RE-RENDER LOGIC & FILTERS ---
     radiusFilter.addEventListener('change', () => {
-      if (currentActiveSpecies && cachedUserLocation && !showingFavorites) {
+      if (currentSearchTerm) {
+        showInlineLoading();
+        setTimeout(() => processLakeSearch(), 50);
+      } else if (currentActiveSpecies && cachedUserLocation && !showingFavorites) {
         showInlineLoading();
         setTimeout(() => findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon), 50);
       }
@@ -532,7 +674,10 @@
       if (manualLocationSelect.value !== 'gps') {
         const coords = manualLocationSelect.value.split(',');
         cachedUserLocation = { lat: parseFloat(coords[0]), lon: parseFloat(coords[1]) };
-        if (currentActiveSpecies && !showingFavorites) {
+        if (currentSearchTerm) {
+          showInlineLoading();
+          setTimeout(() => processLakeSearch(), 50);
+        } else if (currentActiveSpecies && !showingFavorites) {
           showInlineLoading();
           setTimeout(() => findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon), 50);
         } else if (showingFavorites) {
@@ -546,6 +691,8 @@
     viewFavoritesBtn.addEventListener('click', () => {
       showingFavorites = !showingFavorites;
       if (showingFavorites) {
+        currentSearchTerm = null;
+        lakeSearchInput.value = '';
         viewFavoritesBtn.classList.add('active');
         document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
         renderFavorites();
@@ -554,7 +701,7 @@
         if (currentActiveSpecies && cachedUserLocation) {
           findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon);
         } else {
-          resultsContainer.innerHTML = '<p class="status-msg">Tap a fish above to find nearby lakes.</p>';
+          resultsContainer.innerHTML = '<p class="status-msg">Tap a fish above or search by name to find lakes.</p>';
           document.getElementById('map').style.display = 'none';
         }
       }
@@ -563,12 +710,16 @@
     function triggerReRender() {
       if (showingFavorites) {
         renderFavorites();
+      } else if (currentSearchTerm) {
+        processLakeSearch();
       } else if (currentActiveSpecies && cachedUserLocation) {
         findClosestLakes(currentActiveSpecies, cachedUserLocation.lat, cachedUserLocation.lon);
       }
     }
 
     function handleFishSelection(speciesId, btnElement) {
+      currentSearchTerm = null;
+      lakeSearchInput.value = '';
       currentActiveSpecies = speciesId;
       document.querySelectorAll('.fish-btn').forEach(b => b.classList.remove('active'));
       btnElement.classList.add('active');
@@ -662,6 +813,21 @@
       resultsContainer.innerHTML = '';
       markersLayer.clearLayers();
       let mapBounds = [];
+
+      // NEW: Add User Pin Marker
+      if (cachedUserLocation) {
+        const userIcon = L.divIcon({
+          className: '', 
+          html: `<div class="custom-pin pin-user"></div>`, 
+          iconSize: [24, 24], 
+          iconAnchor: [12, 24], 
+          popupAnchor: [0, -26] 
+        });
+        const userMarker = L.marker([cachedUserLocation.lat, cachedUserLocation.lon], { icon: userIcon })
+          .bindPopup('<div class="map-popup-title" style="color: #ef4444;">You are here</div>');
+        markersLayer.addLayer(userMarker);
+        mapBounds.push([cachedUserLocation.lat, cachedUserLocation.lon]);
+      }
 
       lakesArray.forEach(lake => {
         const uniqueId = getLakeId(lake);
