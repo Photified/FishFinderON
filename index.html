@@ -120,10 +120,18 @@
     .custom-pin {
       width: 20px; height: 20px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg);
       border: 2px solid #fff; box-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+      transition: all 0.3s ease;
     }
     .pin-blue { background-color: #2563eb; }
     .pin-yellow { background-color: #fbbf24; z-index: 1000 !important; }
     .pin-user { background-color: #ef4444; z-index: 1001 !important; border-color: #fff; }
+    
+    .pin-active {
+      transform: rotate(-45deg) scale(1.4) !important;
+      border-color: var(--accent) !important;
+      box-shadow: 0 0 15px var(--accent);
+      z-index: 1002 !important;
+    }
 
     #results { padding: 0 15px 30px; }
     .status-msg { text-align: center; color: var(--text-muted); margin-top: 20px; line-height: 1.5; font-size: 0.9rem; }
@@ -141,6 +149,12 @@
       background-color: var(--card-bg); border-radius: 10px; padding: 12px;
       margin-bottom: 12px; display: flex; flex-direction: column; 
       box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      border: 2px solid transparent;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .lake-card.active-highlight {
+      border-color: var(--accent);
+      box-shadow: 0 0 12px rgba(14, 165, 233, 0.4);
     }
     .lake-card.stocked-match { border-left: 4px solid #10b981; background-color: rgba(16, 185, 129, 0.05); }
     .lake-card.stocked-ghost { border-left: 4px solid #475569; background-color: rgba(71, 85, 105, 0.05); }
@@ -490,6 +504,7 @@
     let map = L.map('map').setView([46.0, -80.0], 5);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 18, attribution: '© OpenStreetMap' }).addTo(map);
     let markersLayer = L.layerGroup().addTo(map);
+    let markerCache = {};
 
     // --- INITIALIZE FAVORITES DATA ---
     let savedLakes = JSON.parse(localStorage.getItem('savedLakesData')) || {};
@@ -499,10 +514,33 @@
       const infoToggle = e.target.closest('.info-toggle');
       if (infoToggle) {
         const card = infoToggle.closest('.lake-card');
+        const lakeId = card.dataset.lakeid;
         const expandedSection = card.querySelector('.lake-info-expanded');
+        
         if (expandedSection) {
-          expandedSection.classList.toggle('open');
-          infoToggle.innerHTML = expandedSection.classList.contains('open') ? '▲' : '▼';
+          const isOpen = expandedSection.classList.toggle('open');
+          infoToggle.innerHTML = isOpen ? '▲' : '▼';
+          
+          // Clear previous highlights
+          document.querySelectorAll('.lake-card').forEach(c => c.classList.remove('active-highlight'));
+          Object.values(markerCache).forEach(m => {
+            const pinElement = m.getElement()?.querySelector('.custom-pin');
+            if (pinElement) pinElement.classList.remove('pin-active');
+          });
+
+          if (isOpen) {
+            card.classList.add('active-highlight');
+            
+            // Sync with Map
+            const marker = markerCache[lakeId];
+            if (marker) {
+              map.panTo(marker.getLatLng(), { animate: true });
+              marker.openPopup();
+              // Highlight Marker
+              const pinElement = marker.getElement()?.querySelector('.custom-pin');
+              if (pinElement) pinElement.classList.add('pin-active');
+            }
+          }
         }
       }
 
@@ -843,6 +881,7 @@
     function renderLakeList(lakesArray, searchedFishName, filteredSpeciesId = null) {
       resultsContainer.innerHTML = '';
       markersLayer.clearLayers();
+      markerCache = {};
       let mapBounds = [];
 
       if (cachedUserLocation) {
@@ -890,6 +929,7 @@
 
         const marker = L.marker([lake.lat, lake.lon], { icon: customIcon }).bindPopup(popupHTML);
         markersLayer.addLayer(marker);
+        markerCache[uniqueId] = marker;
         mapBounds.push([lake.lat, lake.lon]);
 
         let readableOtherSpecies = lake.species
@@ -928,7 +968,7 @@
         }
 
         resultsContainer.innerHTML += `
-          <div class="lake-card${stockedClass}">
+          <div class="lake-card${stockedClass}" data-lakeid="${uniqueId}">
             <div class="lake-header">
               <div class="lake-header-left">
                 <button class="star-btn ${starActiveClass}" data-lakeid="${uniqueId}" aria-label="Save Lake">★</button>
