@@ -68,33 +68,32 @@
       transform: rotate(45deg);
     }
 
-    /* --- CUSTOM SCROLLBAR CSS --- */
+    /* --- CUSTOM SCROLLBAR CSS (UPDATED SPACING) --- */
     .slider-container {
       display: flex; 
       overflow-x: auto; 
-      padding: 25px 15px 15px 15px; 
+      padding: 25px 15px 20px 15px; /* Increased bottom padding so it doesn't hug the cards */
+      margin-bottom: 10px; /* Added margin so it doesn't touch the filter bar below */
       gap: 15px;
       scroll-snap-type: x mandatory; 
-      /* Firefox support */
       scrollbar-width: thin;
       scrollbar-color: #475569 transparent;
     }
     
-    /* Chrome, Edge, and Safari support */
     .slider-container::-webkit-scrollbar {
       height: 6px;
     }
     .slider-container::-webkit-scrollbar-track {
       background: transparent;
       border-radius: 10px;
-      margin: 0 15px; /* Keeps the scrollbar from hitting the exact edge of the screen */
+      margin: 0 20px; 
     }
     .slider-container::-webkit-scrollbar-thumb {
-      background-color: #475569; /* Nice visible grey */
+      background-color: #475569; 
       border-radius: 10px;
     }
     .slider-container::-webkit-scrollbar-thumb:hover {
-      background-color: #64748b; /* Slightly lighter when tapped/hovered */
+      background-color: #64748b; 
     }
     
     .fish-btn {
@@ -153,7 +152,6 @@
       z-index: 1;
     }
 
-    /* --- MAP POPUP & MARKER STYLING OVERRIDES --- */
     .leaflet-popup-content-wrapper, .leaflet-popup-tip {
       background-color: var(--card-bg) !important;
       color: var(--text-main) !important;
